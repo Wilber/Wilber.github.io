@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Wilbur Ouma" />
+
+
+<title>RNA-Seq Data Analysis</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">RNA-Seq Data Analysis at OSC</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">Before we start</a>
+</li>
+<li>
+  <a href="rna_seq_analysis.html">Day 1</a>
+</li>
+<li>
+  <a href="rna_seq_analysis_day2.html">Day 2</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">RNA-Seq Data Analysis</h1>
+<h4 class="author">Wilbur Ouma</h4>
+
+</div>
+
+
+<hr />
+<blockquote>
+<p>Learning Objectives:</p>
+<ul>
+<li>Pre-process RNA-Seq read counts</li>
+<li>Fit a statistical model on count data and perform hypothesis testing to identify differentially expressed genes (DEGs)</li>
+</ul>
+</blockquote>
+<hr />
+<p>Load required packages:</p>
+<pre class="r"><code>library(edgeR) #Main package for DE analysis
+library(tidyverse) #Data wrangling package, includes ggplot2, dplyr, tidy, readr
+library(RColorBrewer) #Colour scheme for plotting
+library(Glimma) #Interactive MD plots
+library(gplots)</code></pre>
+<div id="data-preprocessing" class="section level2">
+<h2><span class="header-section-number">0.1</span> Data preprocessing</h2>
+<p>Obtain read counts from file:</p>
+<pre class="r"><code>raw_counts &lt;- read.table(file=&quot;../gene_counts.txt&quot;, 
+                         sep = &quot;\t&quot;, 
+                         header = TRUE
+)</code></pre>
+<p>This is a data frame with the first 6 columns describing features (genes). Samples are from column number 7 (SRR).</p>
+<pre class="r"><code>head(raw_counts)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Geneid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Chr"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Start"],"name":[3],"type":["int"],"align":["right"]},{"label":["End"],"name":[4],"type":["int"],"align":["right"]},{"label":["Strand"],"name":[5],"type":["chr"],"align":["left"]},{"label":["Length"],"name":[6],"type":["int"],"align":["right"]},{"label":["SRR7609467"],"name":[7],"type":["int"],"align":["right"]},{"label":["SRR7609468"],"name":[8],"type":["int"],"align":["right"]},{"label":["SRR7609469"],"name":[9],"type":["int"],"align":["right"]},{"label":["SRR7609470"],"name":[10],"type":["int"],"align":["right"]},{"label":["SRR7609471"],"name":[11],"type":["int"],"align":["right"]},{"label":["SRR7609472"],"name":[12],"type":["int"],"align":["right"]},{"label":["SRR7609473"],"name":[13],"type":["int"],"align":["right"]},{"label":["SRR7609474"],"name":[14],"type":["int"],"align":["right"]},{"label":["SRR7609475"],"name":[15],"type":["int"],"align":["right"]},{"label":["SRR7609476"],"name":[16],"type":["int"],"align":["right"]},{"label":["SRR7609477"],"name":[17],"type":["int"],"align":["right"]},{"label":["SRR7609478"],"name":[18],"type":["int"],"align":["right"]}],"data":[{"1":"Phvul.001G000100.v1.0","2":"Chr01","3":"3852","4":"11015","5":"-","6":"7164","7":"138","8":"123","9":"142","10":"154","11":"116","12":"128","13":"133","14":"132","15":"111","16":"91","17":"116","18":"147","_rn_":"1"},{"1":"Phvul.001G000200.v1.0","2":"Chr01","3":"99177","4":"104451","5":"-","6":"5275","7":"0","8":"0","9":"0","10":"0","11":"0","12":"0","13":"0","14":"0","15":"0","16":"0","17":"0","18":"0","_rn_":"2"},{"1":"Phvul.001G000300.v1.0","2":"Chr01","3":"125452","4":"132387","5":"+","6":"6936","7":"3458","8":"3530","9":"3742","10":"3979","11":"3339","12":"2912","13":"3597","14":"4190","15":"3329","16":"3433","17":"2652","18":"3121","_rn_":"3"},{"1":"Phvul.001G000400.v1.0","2":"Chr01","3":"134609","4":"140566","5":"-","6":"5958","7":"237","8":"258","9":"236","10":"259","11":"207","12":"216","13":"309","14":"252","15":"214","16":"208","17":"172","18":"221","_rn_":"4"},{"1":"Phvul.001G000500.v1.0","2":"Chr01","3":"144309","4":"146169","5":"+","6":"1861","7":"1624","8":"1351","9":"1650","10":"1955","11":"1551","12":"902","13":"1639","14":"2136","15":"1908","16":"1701","17":"621","18":"730","_rn_":"5"},{"1":"Phvul.001G000600.v1.0","2":"Chr01","3":"149887","4":"162657","5":"+","6":"12771","7":"329","8":"351","9":"363","10":"384","11":"404","12":"230","13":"406","14":"370","15":"411","16":"359","17":"185","18":"232","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Change sample names from the SRR to reflect sample information, such that: IT: inland treated; IC: inland control; BT: beach treated; BC: beach control</p>
+<pre class="r"><code>names(raw_counts)[7:18] &lt;- c(&quot;IT2&quot;, &quot;BC2&quot;, &quot;IC3&quot;, &quot;IT1&quot;, &quot;BC3&quot;, &quot;BT1&quot;, &quot;BC1&quot;, &quot;IT3&quot;, &quot;IC1&quot;, &quot;IC2&quot;, &quot;BT2&quot;, &quot;BT3&quot;)
+
+head(raw_counts)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Geneid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Chr"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Start"],"name":[3],"type":["int"],"align":["right"]},{"label":["End"],"name":[4],"type":["int"],"align":["right"]},{"label":["Strand"],"name":[5],"type":["chr"],"align":["left"]},{"label":["Length"],"name":[6],"type":["int"],"align":["right"]},{"label":["IT2"],"name":[7],"type":["int"],"align":["right"]},{"label":["BC2"],"name":[8],"type":["int"],"align":["right"]},{"label":["IC3"],"name":[9],"type":["int"],"align":["right"]},{"label":["IT1"],"name":[10],"type":["int"],"align":["right"]},{"label":["BC3"],"name":[11],"type":["int"],"align":["right"]},{"label":["BT1"],"name":[12],"type":["int"],"align":["right"]},{"label":["BC1"],"name":[13],"type":["int"],"align":["right"]},{"label":["IT3"],"name":[14],"type":["int"],"align":["right"]},{"label":["IC1"],"name":[15],"type":["int"],"align":["right"]},{"label":["IC2"],"name":[16],"type":["int"],"align":["right"]},{"label":["BT2"],"name":[17],"type":["int"],"align":["right"]},{"label":["BT3"],"name":[18],"type":["int"],"align":["right"]}],"data":[{"1":"Phvul.001G000100.v1.0","2":"Chr01","3":"3852","4":"11015","5":"-","6":"7164","7":"138","8":"123","9":"142","10":"154","11":"116","12":"128","13":"133","14":"132","15":"111","16":"91","17":"116","18":"147","_rn_":"1"},{"1":"Phvul.001G000200.v1.0","2":"Chr01","3":"99177","4":"104451","5":"-","6":"5275","7":"0","8":"0","9":"0","10":"0","11":"0","12":"0","13":"0","14":"0","15":"0","16":"0","17":"0","18":"0","_rn_":"2"},{"1":"Phvul.001G000300.v1.0","2":"Chr01","3":"125452","4":"132387","5":"+","6":"6936","7":"3458","8":"3530","9":"3742","10":"3979","11":"3339","12":"2912","13":"3597","14":"4190","15":"3329","16":"3433","17":"2652","18":"3121","_rn_":"3"},{"1":"Phvul.001G000400.v1.0","2":"Chr01","3":"134609","4":"140566","5":"-","6":"5958","7":"237","8":"258","9":"236","10":"259","11":"207","12":"216","13":"309","14":"252","15":"214","16":"208","17":"172","18":"221","_rn_":"4"},{"1":"Phvul.001G000500.v1.0","2":"Chr01","3":"144309","4":"146169","5":"+","6":"1861","7":"1624","8":"1351","9":"1650","10":"1955","11":"1551","12":"902","13":"1639","14":"2136","15":"1908","16":"1701","17":"621","18":"730","_rn_":"5"},{"1":"Phvul.001G000600.v1.0","2":"Chr01","3":"149887","4":"162657","5":"+","6":"12771","7":"329","8":"351","9":"363","10":"384","11":"404","12":"230","13":"406","14":"370","15":"411","16":"359","17":"185","18":"232","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Reorder columns to group treatment samples together, for each location</p>
+<pre class="r"><code>raw_counts &lt;- raw_counts[ , c(1:6, 9,15,16,7,10,14,8,11,13,12,17,18)]
+head(raw_counts)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Geneid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Chr"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Start"],"name":[3],"type":["int"],"align":["right"]},{"label":["End"],"name":[4],"type":["int"],"align":["right"]},{"label":["Strand"],"name":[5],"type":["chr"],"align":["left"]},{"label":["Length"],"name":[6],"type":["int"],"align":["right"]},{"label":["IC3"],"name":[7],"type":["int"],"align":["right"]},{"label":["IC1"],"name":[8],"type":["int"],"align":["right"]},{"label":["IC2"],"name":[9],"type":["int"],"align":["right"]},{"label":["IT2"],"name":[10],"type":["int"],"align":["right"]},{"label":["IT1"],"name":[11],"type":["int"],"align":["right"]},{"label":["IT3"],"name":[12],"type":["int"],"align":["right"]},{"label":["BC2"],"name":[13],"type":["int"],"align":["right"]},{"label":["BC3"],"name":[14],"type":["int"],"align":["right"]},{"label":["BC1"],"name":[15],"type":["int"],"align":["right"]},{"label":["BT1"],"name":[16],"type":["int"],"align":["right"]},{"label":["BT2"],"name":[17],"type":["int"],"align":["right"]},{"label":["BT3"],"name":[18],"type":["int"],"align":["right"]}],"data":[{"1":"Phvul.001G000100.v1.0","2":"Chr01","3":"3852","4":"11015","5":"-","6":"7164","7":"142","8":"111","9":"91","10":"138","11":"154","12":"132","13":"123","14":"116","15":"133","16":"128","17":"116","18":"147","_rn_":"1"},{"1":"Phvul.001G000200.v1.0","2":"Chr01","3":"99177","4":"104451","5":"-","6":"5275","7":"0","8":"0","9":"0","10":"0","11":"0","12":"0","13":"0","14":"0","15":"0","16":"0","17":"0","18":"0","_rn_":"2"},{"1":"Phvul.001G000300.v1.0","2":"Chr01","3":"125452","4":"132387","5":"+","6":"6936","7":"3742","8":"3329","9":"3433","10":"3458","11":"3979","12":"4190","13":"3530","14":"3339","15":"3597","16":"2912","17":"2652","18":"3121","_rn_":"3"},{"1":"Phvul.001G000400.v1.0","2":"Chr01","3":"134609","4":"140566","5":"-","6":"5958","7":"236","8":"214","9":"208","10":"237","11":"259","12":"252","13":"258","14":"207","15":"309","16":"216","17":"172","18":"221","_rn_":"4"},{"1":"Phvul.001G000500.v1.0","2":"Chr01","3":"144309","4":"146169","5":"+","6":"1861","7":"1650","8":"1908","9":"1701","10":"1624","11":"1955","12":"2136","13":"1351","14":"1551","15":"1639","16":"902","17":"621","18":"730","_rn_":"5"},{"1":"Phvul.001G000600.v1.0","2":"Chr01","3":"149887","4":"162657","5":"+","6":"12771","7":"363","8":"411","9":"359","10":"329","11":"384","12":"370","13":"351","14":"404","15":"406","16":"230","17":"185","18":"232","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Import the count data into the edgeR package. This will create a DGEList object for edgeR.</p>
+<pre class="r"><code>dge &lt;- DGEList(counts = raw_counts[ , 7:18],
+               lib.size = colSums(raw_counts[ , 7:18]),
+               norm.factors = rep(1,ncol(raw_counts[ , 7:18])),
+               samples = NULL,
+               group = NULL,
+               genes = raw_counts[ , 1:6])
+
+
+dge</code></pre>
+<pre><code>## An object of class &quot;DGEList&quot;
+## $counts
+##    IC3  IC1  IC2  IT2  IT1  IT3  BC2  BC3  BC1  BT1  BT2  BT3
+## 1  142  111   91  138  154  132  123  116  133  128  116  147
+## 2    0    0    0    0    0    0    0    0    0    0    0    0
+## 3 3742 3329 3433 3458 3979 4190 3530 3339 3597 2912 2652 3121
+## 4  236  214  208  237  259  252  258  207  309  216  172  221
+## 5 1650 1908 1701 1624 1955 2136 1351 1551 1639  902  621  730
+## 27192 more rows ...
+## 
+## $samples
+##     group lib.size norm.factors
+## IC3     1 40619905            1
+## IC1     1 35114368            1
+## IC2     1 34833786            1
+## IT2     1 36399307            1
+## IT1     1 41939123            1
+## 7 more rows ...
+## 
+## $genes
+##                  Geneid   Chr  Start    End Strand Length
+## 1 Phvul.001G000100.v1.0 Chr01   3852  11015      -   7164
+## 2 Phvul.001G000200.v1.0 Chr01  99177 104451      -   5275
+## 3 Phvul.001G000300.v1.0 Chr01 125452 132387      +   6936
+## 4 Phvul.001G000400.v1.0 Chr01 134609 140566      -   5958
+## 5 Phvul.001G000500.v1.0 Chr01 144309 146169      +   1861
+## 27192 more rows ...</code></pre>
+<pre class="r"><code>dge$genes %&gt;%
+  head()</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Geneid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Chr"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Start"],"name":[3],"type":["int"],"align":["right"]},{"label":["End"],"name":[4],"type":["int"],"align":["right"]},{"label":["Strand"],"name":[5],"type":["chr"],"align":["left"]},{"label":["Length"],"name":[6],"type":["int"],"align":["right"]}],"data":[{"1":"Phvul.001G000100.v1.0","2":"Chr01","3":"3852","4":"11015","5":"-","6":"7164","_rn_":"1"},{"1":"Phvul.001G000200.v1.0","2":"Chr01","3":"99177","4":"104451","5":"-","6":"5275","_rn_":"2"},{"1":"Phvul.001G000300.v1.0","2":"Chr01","3":"125452","4":"132387","5":"+","6":"6936","_rn_":"3"},{"1":"Phvul.001G000400.v1.0","2":"Chr01","3":"134609","4":"140566","5":"-","6":"5958","_rn_":"4"},{"1":"Phvul.001G000500.v1.0","2":"Chr01","3":"144309","4":"146169","5":"+","6":"1861","_rn_":"5"},{"1":"Phvul.001G000600.v1.0","2":"Chr01","3":"149887","4":"162657","5":"+","6":"12771","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code>dge$samples</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["group"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["lib.size"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["norm.factors"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"40619905","3":"1","_rn_":"IC3"},{"1":"1","2":"35114368","3":"1","_rn_":"IC1"},{"1":"1","2":"34833786","3":"1","_rn_":"IC2"},{"1":"1","2":"36399307","3":"1","_rn_":"IT2"},{"1":"1","2":"41939123","3":"1","_rn_":"IT1"},{"1":"1","2":"42597147","3":"1","_rn_":"IT3"},{"1":"1","2":"32496003","3":"1","_rn_":"BC2"},{"1":"1","2":"31262960","3":"1","_rn_":"BC3"},{"1":"1","2":"33240392","3":"1","_rn_":"BC1"},{"1":"1","2":"31682364","3":"1","_rn_":"BT1"},{"1":"1","2":"30170320","3":"1","_rn_":"BT2"},{"1":"1","2":"34386767","3":"1","_rn_":"BT3"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Add sample and location information</p>
+<pre class="r"><code>treatment&lt;-as.factor(rep(c(&quot;IC&quot;,&quot;IT&quot;,&quot;BC&quot;,&quot;BT&quot;), c(3,3,3,3)))
+location&lt;-as.factor(rep(c(&quot;inland&quot;,&quot;beach&quot;),c(6,6)))
+dge$samples$group&lt;-treatment
+dge$samples$location&lt;-location
+dge$samples</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["group"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["lib.size"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["norm.factors"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["location"],"name":[4],"type":["fctr"],"align":["left"]}],"data":[{"1":"IC","2":"40619905","3":"1","4":"inland","_rn_":"IC3"},{"1":"IC","2":"35114368","3":"1","4":"inland","_rn_":"IC1"},{"1":"IC","2":"34833786","3":"1","4":"inland","_rn_":"IC2"},{"1":"IT","2":"36399307","3":"1","4":"inland","_rn_":"IT2"},{"1":"IT","2":"41939123","3":"1","4":"inland","_rn_":"IT1"},{"1":"IT","2":"42597147","3":"1","4":"inland","_rn_":"IT3"},{"1":"BC","2":"32496003","3":"1","4":"beach","_rn_":"BC2"},{"1":"BC","2":"31262960","3":"1","4":"beach","_rn_":"BC3"},{"1":"BC","2":"33240392","3":"1","4":"beach","_rn_":"BC1"},{"1":"BT","2":"31682364","3":"1","4":"beach","_rn_":"BT1"},{"1":"BT","2":"30170320","3":"1","4":"beach","_rn_":"BT2"},{"1":"BT","2":"34386767","3":"1","4":"beach","_rn_":"BT3"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Create a a copy of the DGEList object:</p>
+<pre class="r"><code>dge_orig&lt;-dge</code></pre>
+<div id="cpm-transformation" class="section level3">
+<h3><span class="header-section-number">0.1.1</span> CPM transformation</h3>
+<p>Transform raw read counts to expression counts: counts per million (CPM). While the majority of normalization methods work well, RPKM and total count normalization should be avoided in the context of DE analysis, no matter how often you see them applied in published studies. RPKM, FPKM etc. are only needed if expression values need to be compared between different genes within the same sample for which the different gene lengths must be taken into consideration</p>
+<pre class="r"><code>cpm &lt;- cpm(dge) ##raw counts are converted to CPM and log-CPM values using the cpm function
+lcpm &lt;- cpm(dge, log=TRUE)
+
+L &lt;- mean(dge$samples$lib.size) * 1e-6 #average library size in Millions
+M &lt;- median(dge$samples$lib.size) * 1e-6 #median lib size </code></pre>
+<p>Distrubution of log-CPM, for inland control replicates:</p>
+<pre class="r"><code>#summary(lcpm)
+summary(cpm)[,1:3]</code></pre>
+<pre><code>##       IC3                 IC1                 IC2           
+##  Min.   :    0.000   Min.   :    0.000   Min.   :    0.000  
+##  1st Qu.:    0.517   1st Qu.:    0.513   1st Qu.:    0.517  
+##  Median :    9.183   Median :    9.512   Median :    9.244  
+##  Mean   :   36.769   Mean   :   36.769   Mean   :   36.769  
+##  3rd Qu.:   35.894   3rd Qu.:   36.737   3rd Qu.:   35.598  
+##  Max.   :14527.705   Max.   :16703.447   Max.   :14496.414</code></pre>
+</div>
+<div id="gene-filtering" class="section level3">
+<h3><span class="header-section-number">0.1.2</span> Gene filtering</h3>
+<p>Remove genes that are lowly expressed using the “filterByExpr” edgeR function. By default, the fxn keeps genes with about 10 read counts or more in a minimum number of samples, where the number of samples is chosen according to the minimum group sample size. The actual filtering uses CPM values rather than counts in order to avoid giving preference to samples with large library sizes. For example, if the median library size is about 51 million and 10/51 ≈ 0.2, so the filterByExpr function keeps genes that have a CPM of 0.2 or more in at least three samples.</p>
+<pre class="r"><code>keep.exprs &lt;- filterByExpr(dge)
+#NOTE: Consider adjusting the read count cutoff. By default, the function keeps genes with about 10 read counts or more in a minimum number of samples 
+#keep.exprs &lt;- filterByExpr(dge, min.count = 5, min.total.count = 5)
+
+dge &lt;- dge[keep.exprs,, keep.lib.sizes=FALSE]
+dim(dge)</code></pre>
+<pre><code>## [1] 21665    12</code></pre>
+<p>LEARNING CHECK: What proportion of genes are kept? Hide this answer!</p>
+<pre class="r"><code>dim(dge$counts)[1]/dim(dge_orig$counts)[1]</code></pre>
+<pre><code>## [1] 0.7965952</code></pre>
+<p>Line graphs depicting the effect of filtering out genes with low expression values</p>
+<pre class="r"><code>library(RColorBrewer)
+lcpm.cutoff &lt;- log2(10/M + 2/L)
+nsamples &lt;- ncol(dge)
+col &lt;- brewer.pal(nsamples, &quot;Paired&quot;)
+par(mfrow=c(1,2))
+plot(density(lcpm[,1]), col=col[1], lwd=2, ylim=c(0,0.26), las=2, main=&quot;&quot;, xlab=&quot;&quot;) #density with lcpm from unfiltered data
+title(main=&quot;A. Raw data&quot;, xlab=&quot;Log-cpm&quot;)
+abline(v=lcpm.cutoff, lty=3)
+for (i in 2:nsamples){
+  den &lt;- density(lcpm[,i])
+  lines(den$x, den$y, col=col[i], lwd=2)
+}
+#legend(&quot;topright&quot;, samplenames, text.col=col, bty=&quot;n&quot;)
+lcpm2 &lt;- cpm(dge, log=TRUE) #NOTE: reculculating lcpm from filtered data!!! 
+plot(density(lcpm2[,1]), col=col[1], lwd=2, ylim=c(0,0.26), las=2, main=&quot;&quot;, xlab=&quot;&quot;)
+title(main=&quot;B. Filtered data&quot;, xlab=&quot;Log-cpm&quot;)
+abline(v=lcpm.cutoff, lty=3)
+for (i in 2:nsamples){
+  den &lt;- density(lcpm2[,i])
+  lines(den$x, den$y, col=col[i], lwd=2)
+}</code></pre>
+<p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<pre class="r"><code>#legend(&quot;topright&quot;, samplenames, text.col=col, bty=&quot;n&quot;)
+#dev.off()</code></pre>
+</div>
+<div id="normalization-for-sequencing-depth-differences" class="section level3">
+<h3><span class="header-section-number">0.1.3</span> Normalization for sequencing depth differences</h3>
+<p>Bar plots bellow shows need for normalization to account for different library sizes:</p>
+<pre class="r"><code>samplenames&lt;-c(&quot;Inland_c3&quot;,&quot;Inland_c1&quot;,&quot;Inland_c2&quot;,&quot;Inland_t2&quot;,&quot;Inland_t1&quot;,&quot;Inland_t3&quot;,
+               &quot;Beach_c2&quot;,&quot;Beach_c3&quot;,&quot;Beach_c1&quot;,&quot;Beach_t1&quot;,&quot;Beach_t2&quot;,&quot;Beach_t3&quot;)
+#Lib sizes:
+barplot(dge$samples$lib.size, las = 2, names.arg = samplenames)</code></pre>
+<p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p>TMM Normalization:</p>
+<pre class="r"><code>dge_unNorm&lt;-dge #create a copy of unnormalized data
+dge &lt;- calcNormFactors(dge, method = &quot;TMM&quot;)</code></pre>
+<p>Note the change in normalization factors:</p>
+<pre class="r"><code>dge$samples</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["group"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["lib.size"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["norm.factors"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["location"],"name":[4],"type":["fctr"],"align":["left"]}],"data":[{"1":"IC","2":"40613336","3":"0.9618646","4":"inland","_rn_":"IC3"},{"1":"IC","2":"35108304","3":"0.9961767","4":"inland","_rn_":"IC1"},{"1":"IC","2":"34828021","3":"0.9549586","4":"inland","_rn_":"IC2"},{"1":"IT","2":"36393071","3":"1.0309439","4":"inland","_rn_":"IT2"},{"1":"IT","2":"41932500","3":"1.0306391","4":"inland","_rn_":"IT1"},{"1":"IT","2":"42590205","3":"1.0361333","4":"inland","_rn_":"IT3"},{"1":"BC","2":"32491348","3":"1.0085894","4":"beach","_rn_":"BC2"},{"1":"BC","2":"31258594","3":"1.0090062","4":"beach","_rn_":"BC3"},{"1":"BC","2":"33235105","3":"1.0393256","4":"beach","_rn_":"BC1"},{"1":"BT","2":"31677628","3":"0.9892230","4":"beach","_rn_":"BT1"},{"1":"BT","2":"30165626","3":"0.9587813","4":"beach","_rn_":"BT2"},{"1":"BT","2":"34381220","3":"0.9895421","4":"beach","_rn_":"BT3"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Plot distribution of expression values showing the effect of normalization</p>
+<pre class="r"><code>par(mfrow=c(1,2))
+
+lcpm &lt;- cpm(dge_unNorm, log=TRUE)
+boxplot(lcpm, las=2, col=col, main=&quot;&quot;)
+title(main=&quot;Unnormalized data&quot;,ylab=&quot;Log-cpm&quot;)
+
+lcpm &lt;- cpm(dge, log=TRUE)
+boxplot(lcpm, las=2, col=col, main=&quot;&quot;)
+title(main=&quot;Normalized data&quot;,ylab=&quot;Log-cpm&quot;)</code></pre>
+<p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<p>MDS plots: To create the MDS plots, we assign different colours to the factors of interest. Dimensions 1 and 2 are examined using the colour grouping (i.e treatment).</p>
+<pre class="r"><code>lcpm &lt;- cpm(dge, log=TRUE)
+#par(mfrow=c(1,2))
+col.group &lt;- dge$samples$group
+levels(col.group) &lt;- brewer.pal(nlevels(col.group), &quot;Set1&quot;)
+col.group &lt;- as.character(col.group)
+#col.lane &lt;- lane
+#levels(col.lane) &lt;- brewer.pal(nlevels(col.lane), &quot;Set2&quot;)
+#col.lane &lt;- as.character(col.lane)
+plotMDS(lcpm, col=col.group) </code></pre>
+<p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<pre class="r"><code>#all replicates per condition (treatement, location) cluster together!
+#separation due to treatement, and location!! Need to factor in location!!!</code></pre>
+<p>#PCA: Proportion of explained variance transpose the data to have variables (genes) as columns</p>
+<pre class="r"><code>data_for_PCA &lt;- t(dge$counts)
+dim(data_for_PCA)</code></pre>
+<pre><code>## [1]    12 21665</code></pre>
+<pre class="r"><code>## calculate MDS (matrix of dissimilarities)
+mds &lt;- cmdscale(dist(data_for_PCA), k=3, eig=TRUE)  
+# k = the maximum dimension of the space which the data are to be represented in
+# eig = indicates whether eigenvalues should be returned
+#mds$eig
+
+##How many components can explain the variabilty?
+# transform the Eigen values into percentage
+eig_pc &lt;- mds$eig * 100 / sum(mds$eig)
+# plot the PCA
+#png(file=&quot;~/PCA_PropExplainedVariance.png&quot;)
+barplot(eig_pc,
+        las=1,
+        xlab=&quot;Dimensions&quot;, 
+        ylab=&quot;Proportion of explained variance (%)&quot;, y.axis=NULL,
+        col=&quot;darkgrey&quot;, names.arg = 1:12)</code></pre>
+<p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<p>LEARNING CHECK: What proportion of variance is explained by treatment?</p>
+<p>CONCLUSSION: MDS plot support DE analysis between T and C, but also suggestive of accounting for location as a factor. We will cover this is day 2 workshop.</p>
+</div>
+</div>
+<div id="model-fitting-and-hypothesis-testing" class="section level2">
+<h2><span class="header-section-number">0.2</span> Model fitting and Hypothesis testing</h2>
+<p>Fitting genewise negative binomial generalized linear models (unlike limma lmFit that uses logcpm–assuming Normality–after adding ‘voom’ weights) create design matrix for differential expression analysis; if you wanted to account for batch here, you could simply include a batch term in the linear model at this step, e.g.: mod &lt;- model.matrix(~0 + Batch + Group)</p>
+<p>Create a design matrix for the linear models. No reference group/treatment, and no intercept, easier for pair-wise comparisons with contrasts (ANOVA-like comparison)</p>
+<div id="method-1-degs-for-each-location-separately" class="section level3">
+<h3><span class="header-section-number">0.2.1</span> Method 1: DEGs, for each location, separately:</h3>
+<p>No intercept (ANOVA-like comparison) Adding intercept– the first coefficient is the average value of the control group, the other is the off-set for the treatment group. No intercept–easier to use contrasts for hypothesis testing involving multiple comparisons. We will see an example with intercept in METHOD 2 (location as factor in the model).</p>
+<pre class="r"><code>mod &lt;- model.matrix(~0+dge$samples$group) #no intercept (coefficient for baseline)
+#mod
+rownames(mod) &lt;- colnames(dge)
+colnames(mod)&lt;-c(&quot;BC&quot;,&quot;BT&quot;,&quot;IC&quot;,&quot;IT&quot;)</code></pre>
+<p>Check the model:</p>
+<pre class="r"><code>mod</code></pre>
+<pre><code>##     BC BT IC IT
+## IC3  0  0  1  0
+## IC1  0  0  1  0
+## IC2  0  0  1  0
+## IT2  0  0  0  1
+## IT1  0  0  0  1
+## IT3  0  0  0  1
+## BC2  1  0  0  0
+## BC3  1  0  0  0
+## BC1  1  0  0  0
+## BT1  0  1  0  0
+## BT2  0  1  0  0
+## BT3  0  1  0  0
+## attr(,&quot;assign&quot;)
+## [1] 1 1 1 1
+## attr(,&quot;contrasts&quot;)
+## attr(,&quot;contrasts&quot;)$`dge$samples$group`
+## [1] &quot;contr.treatment&quot;</code></pre>
+<p>Estimate dispersion:</p>
+<pre class="r"><code>dge2 &lt;- estimateDisp(dge, design = mod )</code></pre>
+<p>make contrasts: Below, a +ve log FC denotes gene upregulated TR relative to UTR baseline<br />
+Recommended if you have many comparisons/contrasts</p>
+<pre class="r"><code>contr.matrix &lt;- makeContrasts(
+    Beach_T_vs_Beach_C = BT - BC,
+    Inland_T_vs_Inland_C = IT - IC,
+    levels = colnames(mod))</code></pre>
+<p>Check the matrix</p>
+<pre class="r"><code>contr.matrix</code></pre>
+<pre><code>##       Contrasts
+## Levels Beach_T_vs_Beach_C Inland_T_vs_Inland_C
+##     BC                 -1                    0
+##     BT                  1                    0
+##     IC                  0                   -1
+##     IT                  0                    1</code></pre>
+<p>Fit a Generalized Linear Model (GLM): Why GLM? Non-normal distribution of read counts (negative-binomial). Also, few replicates.</p>
+<pre class="r"><code>fit &lt;- glmFit(dge2, mod)</code></pre>
+<p>Perform Hypothesis testing (is DE significant?) using Likelihood ratio test.</p>
+<p>Beach:</p>
+<pre class="r"><code>  glf_Beach_T_vs_Beach_C &lt;-glmLRT(fit, contrast = contr.matrix[,&quot;Beach_T_vs_Beach_C&quot;])</code></pre>
+<p>Inland:</p>
+<pre class="r"><code>  glf_Inland_T_vs_Inland_C &lt;-glmLRT(fit, contrast = contr.matrix[,&quot;Inland_T_vs_Inland_C&quot;])</code></pre>
+<p>Perform multiple testing correction/p value adjustment. Why? Here: <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6099145/" class="uri">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6099145/</a></p>
+<p>First, interrogate the top DE genes, inland:</p>
+<pre class="r"><code>topTags(glf_Inland_T_vs_Inland_C)</code></pre>
+<pre><code>## Coefficient:  -1*IC 1*IT 
+##                      Geneid   Chr    Start      End Strand Length     logFC   logCPM       LR
+## 9569  Phvul.004G056400.v1.0 Chr04  7396606  7397508      -    903  6.196673 4.368390 620.0862
+## 2632  Phvul.001G263200.v1.0 Chr01 51729773 51729982      +    210  4.512078 4.083698 483.8931
+## 17196 Phvul.007G231800.v1.0 Chr07 47146783 47148189      -   1407  5.260009 6.635312 481.2923
+## 15887 Phvul.007G100900.v1.0 Chr07 10966196 10970519      -   4324  2.279606 5.402644 387.8966
+## 673   Phvul.001G067300.v1.0 Chr01  8642080  8646688      -   4609  4.352858 6.778686 386.2670
+## 20965 Phvul.009G034300.v1.0 Chr09  7372885  7373614      +    730 -4.680555 4.016624 372.2606
+## 21686 Phvul.009G106400.v1.0 Chr09 16017975 16023446      +   5472 -2.746245 6.529474 346.8216
+## 13407 Phvul.006G075000.v1.0 Chr06 19419104 19420608      -   1505  3.977573 6.495196 324.1158
+## 6999  Phvul.003G096700.v1.0 Chr03 22229474 22230485      -   1012  3.550444 3.873551 318.1419
+## 754   Phvul.001G075400.v1.0 Chr01 10506529 10509049      -   2521  3.084691 6.171969 317.7187
+##              PValue           FDR
+## 9569  7.161676e-137 1.551577e-132
+## 2632  3.038253e-107 3.291188e-103
+## 17196 1.118259e-106 8.075697e-103
+## 15887  2.375728e-86  1.286754e-82
+## 673    5.377384e-86  2.330020e-82
+## 20965  6.025646e-83  2.175760e-79
+## 21686  2.085873e-77  6.455777e-74
+## 13407  1.838235e-72  4.978169e-69
+## 6999   3.678151e-71  8.854128e-68
+## 754    4.548098e-71  9.853454e-68</code></pre>
+<p>Get all DE genes with adjusted p.value cutoff (Inland)</p>
+<pre class="r"><code>pvals_T_vs_C_inland&lt;-topTags(glf_Inland_T_vs_Inland_C, n = &quot;Inf&quot;, adjust.method = &quot;BH&quot;, sort.by = &quot;PValue&quot;, p.value = 0.1 )
+pvals_T_vs_C_inland&lt;-pvals_T_vs_C_inland[[1]] #get the dataframe, from the edgeR object</code></pre>
+<p>Count genes with FDF&lt;=0.1, but consider different FDRs use the data wrangling package ‘dplyr’, included in ‘tidyverse’ package see top 10 genes, with FDR cutoff of 0.1</p>
+<pre class="r"><code>pvals_T_vs_C_inland %&gt;%
+  dplyr::filter(FDR &lt;= 0.1) %&gt;%
+  head(10)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Geneid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Chr"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Start"],"name":[3],"type":["int"],"align":["right"]},{"label":["End"],"name":[4],"type":["int"],"align":["right"]},{"label":["Strand"],"name":[5],"type":["chr"],"align":["left"]},{"label":["Length"],"name":[6],"type":["int"],"align":["right"]},{"label":["logFC"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["logCPM"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["LR"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["PValue"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["FDR"],"name":[11],"type":["dbl"],"align":["right"]}],"data":[{"1":"Phvul.004G056400.v1.0","2":"Chr04","3":"7396606","4":"7397508","5":"-","6":"903","7":"6.196673","8":"4.368390","9":"620.0862","10":"7.161676e-137","11":"1.551577e-132","_rn_":"9569"},{"1":"Phvul.001G263200.v1.0","2":"Chr01","3":"51729773","4":"51729982","5":"+","6":"210","7":"4.512078","8":"4.083698","9":"483.8931","10":"3.038253e-107","11":"3.291188e-103","_rn_":"2632"},{"1":"Phvul.007G231800.v1.0","2":"Chr07","3":"47146783","4":"47148189","5":"-","6":"1407","7":"5.260009","8":"6.635312","9":"481.2923","10":"1.118259e-106","11":"8.075697e-103","_rn_":"17196"},{"1":"Phvul.007G100900.v1.0","2":"Chr07","3":"10966196","4":"10970519","5":"-","6":"4324","7":"2.279606","8":"5.402644","9":"387.8966","10":"2.375728e-86","11":"1.286754e-82","_rn_":"15887"},{"1":"Phvul.001G067300.v1.0","2":"Chr01","3":"8642080","4":"8646688","5":"-","6":"4609","7":"4.352858","8":"6.778686","9":"386.2670","10":"5.377384e-86","11":"2.330020e-82","_rn_":"673"},{"1":"Phvul.009G034300.v1.0","2":"Chr09","3":"7372885","4":"7373614","5":"+","6":"730","7":"-4.680555","8":"4.016624","9":"372.2606","10":"6.025646e-83","11":"2.175760e-79","_rn_":"20965"},{"1":"Phvul.009G106400.v1.0","2":"Chr09","3":"16017975","4":"16023446","5":"+","6":"5472","7":"-2.746245","8":"6.529474","9":"346.8216","10":"2.085873e-77","11":"6.455777e-74","_rn_":"21686"},{"1":"Phvul.006G075000.v1.0","2":"Chr06","3":"19419104","4":"19420608","5":"-","6":"1505","7":"3.977573","8":"6.495196","9":"324.1158","10":"1.838235e-72","11":"4.978169e-69","_rn_":"13407"},{"1":"Phvul.003G096700.v1.0","2":"Chr03","3":"22229474","4":"22230485","5":"-","6":"1012","7":"3.550444","8":"3.873551","9":"318.1419","10":"3.678151e-71","11":"8.854128e-68","_rn_":"6999"},{"1":"Phvul.001G075400.v1.0","2":"Chr01","3":"10506529","4":"10509049","5":"-","6":"2521","7":"3.084691","8":"6.171969","9":"317.7187","10":"4.548098e-71","11":"9.853454e-68","_rn_":"754"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>bottom DE genes:</p>
+<pre class="r"><code>pvals_T_vs_C_inland %&gt;%
+  dplyr::filter(FDR &lt;= 0.1) %&gt;%
+  tail()</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Geneid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Chr"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Start"],"name":[3],"type":["int"],"align":["right"]},{"label":["End"],"name":[4],"type":["int"],"align":["right"]},{"label":["Strand"],"name":[5],"type":["chr"],"align":["left"]},{"label":["Length"],"name":[6],"type":["int"],"align":["right"]},{"label":["logFC"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["logCPM"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["LR"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["PValue"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["FDR"],"name":[11],"type":["dbl"],"align":["right"]}],"data":[{"1":"Phvul.007G157400.v1.0","2":"Chr07","3":"38261335","4":"38265910","5":"-","6":"4576","7":"0.1688971","8":"7.040785","9":"4.375717","10":"0.03645448","11":"0.09978350","_rn_":"16452"},{"1":"Phvul.010G146700.v1.0","2":"Chr10","3":"41800513","4":"41805539","5":"+","6":"5027","7":"0.2880521","8":"4.488565","9":"4.374547","10":"0.03647952","11":"0.09983943","_rn_":"24722"},{"1":"Phvul.002G172200.v1.0","2":"Chr02","3":"31918896","4":"31924015","5":"+","6":"5120","7":"-0.4263375","8":"2.735681","9":"4.373171","10":"0.03650899","11":"0.09990746","_rn_":"4416"},{"1":"Phvul.009G119000.v1.0","2":"Chr09","3":"17679640","4":"17684688","5":"-","6":"5049","7":"-0.1949631","8":"4.743594","9":"4.372324","10":"0.03652715","11":"0.09994451","_rn_":"21812"},{"1":"Phvul.003G125700.v1.0","2":"Chr03","3":"30689612","4":"30692651","5":"-","6":"3040","7":"-0.3560639","8":"5.623442","9":"4.371984","10":"0.03653444","11":"0.09995184","_rn_":"7289"},{"1":"Phvul.007G219500.v1.0","2":"Chr07","3":"45905776","4":"45906185","5":"+","6":"410","7":"-0.3494290","8":"5.200892","9":"4.371143","10":"0.03655247","11":"0.09998856","_rn_":"17073"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>get the number of genes with FDR cutoff of 0.1</p>
+<pre class="r"><code>pvals_T_vs_C_inland %&gt;%
+  filter(FDR &lt;= 0.1) %&gt;%
+  count() </code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["n"],"name":[1],"type":["int"],"align":["right"]}],"data":[{"1":"7920"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div id="useful-graphical-representations-of-differential-expression-results" class="section level3">
+<h3><span class="header-section-number">0.2.2</span> Useful graphical representations of differential expression results</h3>
+<p>Get number of up and down regulated genes:</p>
+<pre class="r"><code>dt&lt;-decideTests(glf_Inland_T_vs_Inland_C, adjust.method = &quot;BH&quot;, p.value = 0.1)
+summary(dt)</code></pre>
+<pre><code>##        -1*IC 1*IT
+## Down         4006
+## NotSig      13745
+## Up           3914</code></pre>
+<p>with ggplot</p>
+<pre class="r"><code>library(ggplot2)
+#create a dataframe with &#39;sign&#39; column showing Up, Down, or Non.sig
+sign.dat&lt;-glf_Inland_T_vs_Inland_C$table %&gt;%
+  dplyr::mutate(sign=case_when(logFC&gt;0 &amp; PValue &lt; 0.05 ~ &quot;Up&quot;,
+                               logFC&lt;0 &amp; PValue &lt; 0.05 ~ &quot;Down&quot;,
+                               PValue &gt; 0.05 ~ &quot;Non.sigf&quot;)
+                )
+
+#head(sign.dat)
+ggplot(sign.dat, aes(x = logCPM, y=logFC,col=sign)) +
+#  geom_point(alpha=0.4) + 
+  geom_point() + 
+  scale_colour_manual(values=c(&quot;blue&quot;,&quot;black&quot;,&quot;red&quot;)) + 
+  labs(x = &quot;Average log CPM&quot;, y = &quot;log-fold-change&quot;) +
+  theme(legend.position = c(0.9, 0.9), legend.title = element_blank()) +
+  theme(
+    axis.title.x = element_text(size=14),
+    axis.title.y = element_text(size=14), 
+    axis.text.x = element_text(size = 14), 
+    axis.text.y = element_text(size = 14)
+  )</code></pre>
+<p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-34-1.png" width="672" /></p>
+<p>Interactive MD plot</p>
+<pre class="r"><code>#install Glimma package
+#if (!requireNamespace(&quot;BiocManager&quot;, quietly = TRUE))
+#  install.packages(&quot;BiocManager&quot;)
+#BiocManager::install(&quot;Glimma&quot;)
+
+#library(Glimma)
+#glMDPlot(glf_Inland_T_vs_Inland_C, coef=1, status=dt, #main=colnames(glf_Inland_T_vs_Inland_C)[1],
+#         side.main=&quot;ENTREZID&quot;, counts=lcpm, groups=glf_Inland_T_vs_Inland_C$samples$group, launch=TRUE)</code></pre>
+<p>Heatmap of the top 100 DE genes</p>
+<pre class="r"><code>#install.packages(&quot;gplots&quot;)
+library(gplots)
+tr.vs.utr.topgenes &lt;- pvals_T_vs_C_inland$Geneid[1:100] #get IDS of top DEGs
+i &lt;- which(dge$genes$Geneid %in% tr.vs.utr.topgenes) #Get their index in the expression table
+mycol &lt;- colorpanel(1000,&quot;blue&quot;,&quot;white&quot;,&quot;red&quot;)
+heatmap.2(lcpm[i,], scale=&quot;row&quot;,
+          labRow=dge$genes$Geneid[i], labCol=dge$samples$group,
+          col=mycol, trace=&quot;none&quot;, density.info=&quot;none&quot;, dendrogram=&quot;column&quot;)</code></pre>
+<p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-36-1.png" width="672" /></p>
+<p>The above heatmap has samples from all locations, our interest for now is inland. However, looks like (as expected), all treatment samples are clustering together, irrespective of location.</p>
+<p>LEARNING CHECK: Produce a heatmap with inland samples only (hint: index only relevant samples in the expression matrix for plotting) SOLUTION (HIDE)</p>
+<pre class="r"><code>#install.packages(&quot;gplots&quot;)
+tr.vs.utr.topgenes &lt;- pvals_T_vs_C_inland$Geneid[1:100] #get IDS of top DEGs
+i &lt;- which(dge$genes$Geneid %in% tr.vs.utr.topgenes) #Get their index in the expression table
+mycol &lt;- colorpanel(1000,&quot;blue&quot;,&quot;white&quot;,&quot;red&quot;)
+heatmap.2(lcpm[i,1:6], scale=&quot;row&quot;,
+          labRow=dge$genes$Geneid[i], labCol=dge$samples$group,
+          col=mycol, trace=&quot;none&quot;, density.info=&quot;none&quot;, dendrogram=&quot;column&quot;)</code></pre>
+<p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-37-1.png" width="672" /></p>
+<p>LEARNING CHECK: 1. What is the number of DEGs on the beach? 2. How many of the beach DEGs are also DEGs inland?</p>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
