@@ -9,10 +9,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Wilbur Ouma" />
 
 
-<title>RNA-Seq Data Analysis</title>
+<title>Multi-factor RNA-Seq Data Analysis</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -354,7 +353,7 @@ div.tocify {
   <a href="index.html">Home</a>
 </li>
 <li>
-  <a href="about.html">Before we start</a>
+  <a href="introR.html">Intro to R</a>
 </li>
 <li>
   <a href="rna_seq_analysis.html">Day 1</a>
@@ -374,114 +373,100 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">RNA-Seq Data Analysis</h1>
-<h4 class="author">Wilbur Ouma</h4>
+<h1 class="title toc-ignore">Multi-factor RNA-Seq Data Analysis</h1>
 
 </div>
 
 
-<p>Load required packages:</p>
+<div id="model-fitting-and-hypothesis-testing" class="section level2">
+<h2><span class="header-section-number">0.1</span> Model fitting and Hypothesis testing</h2>
+<div id="method-2-accounting-for-location" class="section level3">
+<h3><span class="header-section-number">0.1.1</span> Method 2: Accounting for location</h3>
+<p>Recall that from Method 1, we fit two separate models on data from the two locations, and identifies DEGs due to application of salt separately. If the biological question is to identify the effect of treatment while the location is held contstant (i.e the effect of treatment irrespective of the location), then we need to account for location. We observed from MDSplot from Day 1 that there’s some (biological) variation explained by location due to separation of samples by Dimension 2. We therefore need to fit a multi-factor (multi-variate) additive model that accounts for location as a covariate.</p>
+<p>Let us first load required packages:</p>
 <pre class="r"><code>library(edgeR) #Main package for DE analysis
 library(tidyverse) #Data wrangling package, includes ggplot2, dplyr, tidy, readr
 library(RColorBrewer) #Colour scheme for plotting
 library(Glimma) #Interactive MD plots
 library(gplots)</code></pre>
-<div id="method-2" class="section level3">
-<h3><span class="header-section-number">0.0.1</span> Method 2</h3>
-<p>RECALL: MDS plot (fig. ?), there’s some (biological) variation explained by location, but.. remember we combined all replicates of a location into one grp? Not a good idea, batch effect</p>
-<p>Problem: variation acrross different locations not accounted for!</p>
-<p>Account for gene variations across different location Why include location/batch factor? increase the sensitivity for finding differences due to treatment!!! Multivariate model, with location as a covariate treatments can be adjusted for differences between the batches by using an additive model formula of the form</p>
-<p>Get the original copy of the DGE object</p>
-<pre class="r"><code>dge_opt2&lt;-dge_orig</code></pre>
-<p>Modify the $samples object:</p>
-<pre class="r"><code>treatment&lt;-as.factor(rep(c(&quot;C&quot;,&quot;T&quot;,&quot;C&quot;,&quot;T&quot;), c(3,3,3,3)))
-dge_opt2$samples$group&lt;-treatment
-dge_opt2$samples</code></pre>
+<p>Then get the original copy of the DGE object</p>
+<pre class="r"><code>dge_method2&lt;-readRDS(&quot;dge_orig.rds&quot;)</code></pre>
+<p>Note that for a multivariate model, all combinations of treatments/group should be replicated in the second variable/factor. That is, we should have Control (C) and Treatment (T) samples in <strong>both</strong> inland and beach. We specify the group factor in the <code>dge_method2</code> to reflect this:</p>
+<pre class="r"><code>group&lt;-as.factor(rep(c(&quot;C&quot;,&quot;T&quot;,&quot;C&quot;,&quot;T&quot;), c(3,3,3,3)))
+dge_method2$samples$group&lt;-group
+#verify that we have &quot;C&quot; and &quot;T&quot; in both inland and beach
+dge_method2$samples</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["group"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["lib.size"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["norm.factors"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["location"],"name":[4],"type":["fctr"],"align":["left"]}],"data":[{"1":"C","2":"40619905","3":"1","4":"inland","_rn_":"IC3"},{"1":"C","2":"35114368","3":"1","4":"inland","_rn_":"IC1"},{"1":"C","2":"34833786","3":"1","4":"inland","_rn_":"IC2"},{"1":"T","2":"36399307","3":"1","4":"inland","_rn_":"IT2"},{"1":"T","2":"41939123","3":"1","4":"inland","_rn_":"IT1"},{"1":"T","2":"42597147","3":"1","4":"inland","_rn_":"IT3"},{"1":"C","2":"32496003","3":"1","4":"beach","_rn_":"BC2"},{"1":"C","2":"31262960","3":"1","4":"beach","_rn_":"BC3"},{"1":"C","2":"33240392","3":"1","4":"beach","_rn_":"BC1"},{"1":"T","2":"31682364","3":"1","4":"beach","_rn_":"BT1"},{"1":"T","2":"30170320","3":"1","4":"beach","_rn_":"BT2"},{"1":"T","2":"34386767","3":"1","4":"beach","_rn_":"BT3"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<p>LEARNING CHECK: Obtain cpm values, filter out non-DEGs, perform (TMM) normalization; prepare MDS plots SOLUTION: R FUNCTIONS!!!! Example</p>
-<pre class="r"><code>average&lt;-function(x){
-  return(sum(x)/length(x))
-}
-average(c(5,6,7))</code></pre>
-<pre><code>## [1] 6</code></pre>
-<p>R function: Takes a DGEList edgeR object; performs the following: 1. Pre-processing (cpm, filter, normalization) 2. Fits a glm on data, get DEGs with LRT, for the separate locations</p>
-<p>Note: Location NOT included as a covariate in the model, for this see OPTION 3</p>
-<pre class="r"><code>degs_func_opt3&lt;-function(dge){
-  #cpm:
-  cpm &lt;- cpm(dge)
-  lcpm &lt;- cpm(dge, log=TRUE)
-  #filter
-  keep.exprs &lt;- filterByExpr(dge)
-  dge &lt;- dge[keep.exprs,, keep.lib.sizes=FALSE]
-  ##Normalize:
-  dge &lt;- calcNormFactors(dge, method = &quot;TMM&quot;)
-  
-  #Method 2:
-    
-  #treatments can be adjusted for differences between the batches (locations) by using 
-  #an additive model formula of the form:
-  location&lt;-dge$samples$location
-  treatment&lt;-dge$samples$group
-  #mod &lt;- model.matrix(~dge$samples$location + dge$samples$group) #the order matters...always put the factor of interest last! 
-  mod &lt;- model.matrix(~location + treatment)
-  #No intercept for location only!
-  #In this type of analysis, the treatments are compared only within each location. The analysis is
-  #corrected for baseline differences between the locations.
-  #e treatments adjusting for any baseline differences between the
-  #compare the two treatments adjusting for any baseline differences between the
-  #locations by fitting an additive model
-  #Note: no intercept (base-line) in the model
-  
-  rownames(mod) &lt;- colnames(dge)
-  #colnames(mod)&lt;-c(&quot;BC&quot;,&quot;BT&quot;,&quot;IC&quot;,&quot;IT&quot;)
-  mod
-  
-  #Estimate dispersion: 
-  dge2 &lt;- estimateDisp(dge, design = mod)
-  
-  
-  #Fit GLM or GLM QL:
-  fit &lt;- glmFit(dge2, mod)
-  
-  #First we check whether there was a genuine need to adjust for location:
-  qlf &lt;- glmLRT(fit, coef=2)
-  topTags(qlf)
-  FDR &lt;- p.adjust(qlf$table$PValue, method=&quot;BH&quot;)
-  sum(FDR &lt;= 0.1) #8739genes. There is considerable differential expression, justifying our decision to adjust for the batch effect:
-  ##LEARNING CHECK: Comppare this numver of DEGs with Option 1 Analysis!!!!!
-  
-  glf_T_vs_C &lt;-glmLRT(fit, coef = 3)
-  
-  
-  #perform multiple testing correction/p value adjustment.
-  #Why? Here: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6099145/
-  
-  
-  
-  pvals_T_vs_C &lt;- topTags(glf_T_vs_C, n = &quot;Inf&quot;, adjust.method = &quot;BH&quot;, sort.by = &quot;PValue&quot;, p.value = 0.1)[[1]]
-  
-  
-  #return a dataframe with the counts of DEGs:
-  deg &lt;- pvals_T_vs_C %&gt;%
-    count() #11393 DEGs
+<div id="data-preprocessing" class="section level4">
+<h4><span class="header-section-number">0.1.1.1</span> Data preprocessing</h4>
+<p>First, let us preprocess the count data contained in the <code>dge_methods2</code> object</p>
+<pre class="r"><code>  # perform cpm and lcp transformation:
+  cpm &lt;- cpm(dge_method2)
+  lcpm &lt;- cpm(dge_method2, log=TRUE)
+  #filter low expressed genes
+  keep.exprs &lt;- filterByExpr(dge_method2)
+  dge_method2 &lt;- dge_method2[keep.exprs,, keep.lib.sizes=FALSE]
+  ##TMM normalization:
+  dge_method2 &lt;- calcNormFactors(dge_method2, method = &quot;TMM&quot;)</code></pre>
+</div>
+<div id="design-matrix" class="section level4">
+<h4><span class="header-section-number">0.1.1.2</span> Design matrix</h4>
+<p>Let us create a design matrix, this time round <strong>with</strong> intercept for the location variable. Also,this type of additive model corrects/adjusts for baseline differences between the locations. <strong>IMPORTANT:</strong> The order of factors matters—always put the factor of interest last!</p>
+<pre class="r"><code>location &lt;- dge_method2$samples$location    
+mod &lt;- model.matrix(~ location + group)
+rownames(mod) &lt;- colnames(dge_method2)</code></pre>
+<p>Let us take a look at the new model:</p>
+<pre class="r"><code>mod</code></pre>
+<pre><code>##     (Intercept) locationinland groupT
+## IC3           1              1      0
+## IC1           1              1      0
+## IC2           1              1      0
+## IT2           1              1      1
+## IT1           1              1      1
+## IT3           1              1      1
+## BC2           1              0      0
+## BC3           1              0      0
+## BC1           1              0      0
+## BT1           1              0      1
+## BT2           1              0      1
+## BT3           1              0      1
+## attr(,&quot;assign&quot;)
+## [1] 0 1 2
+## attr(,&quot;contrasts&quot;)
+## attr(,&quot;contrasts&quot;)$location
+## [1] &quot;contr.treatment&quot;
+## 
+## attr(,&quot;contrasts&quot;)$group
+## [1] &quot;contr.treatment&quot;</code></pre>
+<p>We see three coefficients (sometimes called “dummy variables”), the last coefficient (coefficient 3) representing the effect of treatment on gene expression, after adjusting for the location. This is our coefficient of interest.</p>
+<p>Next we estimate dispersion:</p>
+<pre class="r"><code>  dge_method2 &lt;- estimateDisp(dge_method2, design = mod)</code></pre>
+<p>We fit a GLM</p>
+<pre class="r"><code>  fit &lt;- glmFit(dge2, mod)</code></pre>
+<p>We perform hypothesis testing to answer the following biological question: * What genes are differentally expressed under treatment, after accounting for location? Note below that we do not build a contrast matrix, but rather we specify the coefficient of interest (3) while performing the LRT.</p>
+<pre class="r"><code>#LRT
+glf_T_vs_C &lt;-glmLRT(fit, coef = 3)
 
-  names(deg)&lt;-c(&quot;T_vs_C&quot;)
-  row.names(deg)&lt;-&quot;# of DEGs&quot;
-  return(deg)
-  
-}</code></pre>
-<p>We can save the above the function in a text file (DEGsFunctionOption3.r), run it as shown bellow:</p>
-<pre class="r"><code>source(&quot;../DEGsFunctionOption3.r&quot;, local = knitr::knit_global())
-deg_opt2&lt;-degs_func_opt3(dge_opt2)
-deg_opt2</code></pre>
+#perform multiple test correction, and obtain DEGs with FDR cutfoff of 0.1
+pvals_T_vs_C &lt;- topTags(glf_T_vs_C, n = &quot;Inf&quot;, adjust.method = &quot;BH&quot;, sort.by = &quot;PValue&quot;, p.value = 0.1)[[1]]
+
+head(pvals_T_vs_C)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["T_vs_C"],"name":[1],"type":["int"],"align":["right"]}],"data":[{"1":"11393","_rn_":"# of DEGs"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Geneid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Chr"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Start"],"name":[3],"type":["int"],"align":["right"]},{"label":["End"],"name":[4],"type":["int"],"align":["right"]},{"label":["Strand"],"name":[5],"type":["chr"],"align":["left"]},{"label":["Length"],"name":[6],"type":["int"],"align":["right"]},{"label":["logFC"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["logCPM"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["LR"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["PValue"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["FDR"],"name":[11],"type":["dbl"],"align":["right"]}],"data":[{"1":"Phvul.004G056400.v1.0","2":"Chr04","3":"7396606","4":"7397508","5":"-","6":"903","7":"6.107241","8":"4.368390","9":"1255.6940","10":"4.804607e-275","11":"1.040918e-270","_rn_":"9569"},{"1":"Phvul.001G263200.v1.0","2":"Chr01","3":"51729773","4":"51729982","5":"+","6":"210","7":"5.094781","8":"4.083698","9":"1198.6100","10":"1.222857e-262","11":"1.324660e-258","_rn_":"2632"},{"1":"Phvul.001G075400.v1.0","2":"Chr01","3":"10506529","4":"10509049","5":"-","6":"2521","7":"3.981461","8":"6.171969","9":"941.1945","10":"1.088544e-206","11":"7.861104e-203","_rn_":"754"},{"1":"Phvul.007G231800.v1.0","2":"Chr07","3":"47146783","4":"47148189","5":"-","6":"1407","7":"5.104610","8":"6.635312","9":"920.7311","10":"3.056293e-202","11":"1.655365e-198","_rn_":"17196"},{"1":"Phvul.007G100900.v1.0","2":"Chr07","3":"10966196","4":"10970519","5":"-","6":"4324","7":"2.482682","8":"5.402644","9":"911.2133","10":"3.582612e-200","11":"1.552346e-196","_rn_":"15887"},{"1":"Phvul.001G067300.v1.0","2":"Chr01","3":"8642080","4":"8646688","5":"-","6":"4609","7":"4.833595","8":"6.778686","9":"894.5400","10":"1.509270e-196","11":"5.449722e-193","_rn_":"673"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
+</div>
+<blockquote>
+<p><strong>Learning check!</strong></p>
+<ul>
+<li>How many genes are differentially expressed?</li>
+</ul>
+</blockquote>
+</div>
 </div>
 </div>
 
