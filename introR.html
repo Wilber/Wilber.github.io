@@ -378,321 +378,229 @@ div.tocify {
 </div>
 
 
+<style type="text/css">
+body{ /* Normal  */
+      font-size: 16px;
+  }
+
+code.r{ /* Code block */
+    font-size: 14px;
+}
+</style>
 <div id="learning-objectives" class="section level3">
 <h3><span class="header-section-number">0.0.1</span> Learning Objectives</h3>
 <ul>
-<li>Define the following terms as they relate to R: object, assign, call, function, arguments, options.</li>
-<li>Create objects and assign values to them in R.</li>
-<li>Learn how to <em>name</em> objects</li>
-<li>Use comments to inform script.</li>
-<li>Solve simple arithmetic operations in R.</li>
-<li>Call functions and use arguments to change their default options.</li>
-<li>Inspect the content of vectors and manipulate their content.</li>
-<li>Subset and extract values from vectors.</li>
-<li>Analyze vectors with missing data</li>
+<li>Learn different <code>R</code> data types</li>
+<li>Create <code>R</code> functions</li>
+<li>Manage <code>R</code> packages</li>
 </ul>
 <hr />
 </div>
-<div id="creating-objects-in-r" class="section level2">
-<h2><span class="header-section-number">0.1</span> Creating objects in R</h2>
-<p>You can get output from R simply by typing math in the console:</p>
-<pre class="r"><code>3 + 5</code></pre>
+<div id="r-basics" class="section level2">
+<h2><span class="header-section-number">0.1</span> R Basics</h2>
+<p><code>R</code> is a command line driven program. The user enters commands at the prompt of <code>R</code> interface and each command is executed one at a time.</p>
+<p>What you type on the right is assigned to what you type on the left. After assigning a value to an variable, we can enter the name of the variable to see what the value is. For example:</p>
+<pre class="r"><code>y &lt;- 2  #(we have assigned the value 4 to the object y)  
+x &lt;- 8 #(we have assigned the value 6 to the object x)  
+z &lt;- 1 #(we have assigned the value of the object y to the object z, i.e. z = 4) </code></pre>
+<pre class="r"><code>x</code></pre>
 <pre><code>## [1] 8</code></pre>
-<pre class="r"><code>12 / 7</code></pre>
-<pre><code>## [1] 1.714286</code></pre>
-<p>However, to do useful and interesting things, we need to assign <em>values</em> to <em>objects</em>. To create an object, we need to give it a name followed by the assignment operator <code>&lt;-</code>, and the value we want to give it:</p>
-<pre class="r"><code>weight_kg &lt;- 55</code></pre>
-<p><code>&lt;-</code> is the assignment operator. It assigns values on the right to objects on the left. So, after executing <code>x &lt;- 3</code>, the value of <code>x</code> is <code>3</code>. The arrow can be read as 3 <strong>goes into</strong> <code>x</code>. For historical reasons, you can also use <code>=</code> for assignments, but not in every context. Because of the <a href="https://blog.revolutionanalytics.com/2008/12/use-equals-or-arrow-for-assignment.html">slight</a> <a href="https://r.789695.n4.nabble.com/Is-there-any-difference-between-and-tp878594p878598.html">differences</a> in syntax, it is good practice to always use <code>&lt;-</code> for assignments.</p>
-<p>In RStudio, typing <kbd>Alt</kbd> + <kbd>-</kbd> (push <kbd>Alt</kbd> at the same time as the <kbd>-</kbd> key) will write <code>&lt;-</code> in a single keystroke in a PC, while typing <kbd>Option</kbd> + <kbd>-</kbd> (push <kbd>Option</kbd> at the same time as the <kbd>-</kbd> key) does the same in a Mac.</p>
-<p>Objects can be given any name such as <code>x</code>, <code>current_temperature</code>, or <code>subject_id</code>. You want your object names to be explicit and not too long. They cannot start with a number (<code>2x</code> is not valid, but <code>x2</code> is). R is case sensitive (e.g., <code>weight_kg</code> is different from <code>Weight_kg</code>). There are some names that cannot be used because they are the names of fundamental functions in R (e.g., <code>if</code>, <code>else</code>, <code>for</code>, see <a href="https://stat.ethz.ch/R-manual/R-devel/library/base/html/Reserved.html">here</a> for a complete list). In general, even if it’s allowed, it’s best to not use other function names (e.g., <code>c</code>, <code>T</code>, <code>mean</code>, <code>data</code>, <code>df</code>, <code>weights</code>). If in doubt, check the help to see if the name is already in use. It’s also best to avoid dots (<code>.</code>) within names. Many function names in R itself have them and dots also have a special meaning (methods) in R and other programming languages. To avoid confusion, don’t include dots in names. It is also recommended to use nouns for object names, and verbs for function names. It’s important to be consistent in the styling of your code (where you put spaces, how you name objects, etc.). Using a consistent coding style makes your code clearer to read for your future self and your collaborators. In R, three popular style guides are <a href="https://google.github.io/styleguide/Rguide.xml">Google’s</a>, <a href="https://jef.works/R-style-guide/">Jean Fan’s</a> and the <a href="https://style.tidyverse.org/">tidyverse’s</a>. The tidyverse’s is very comprehensive and may seem overwhelming at first. You can install the <a href="https://github.com/jimhester/lintr"><strong><code>lintr</code></strong></a> package to automatically check for issues in the styling of your code.</p>
-<blockquote>
-<h3 id="objects-vs.-variables"><span class="header-section-number">0.1</span> Objects vs. variables</h3>
-<p>What are known as <code>objects</code> in <code>R</code> are known as <code>variables</code> in many other programming languages. Depending on the context, <code>object</code> and <code>variable</code> can have drastically different meanings. However, in this lesson, the two words are used synonymously. For more information see: <a href="https://cran.r-project.org/doc/manuals/r-release/R-lang.html#Objects" class="uri">https://cran.r-project.org/doc/manuals/r-release/R-lang.html#Objects</a></p>
-</blockquote>
-<p>When assigning a value to an object, R does not print anything. You can force R to print the value by using parentheses or by typing the object name:</p>
-<pre class="r"><code>weight_kg &lt;- 55    # doesn&#39;t print anything
-(weight_kg &lt;- 55)  # but putting parenthesis around the call prints the value of `weight_kg`</code></pre>
-<pre><code>## [1] 55</code></pre>
-<pre class="r"><code>weight_kg          # and so does typing the name of the object</code></pre>
-<pre><code>## [1] 55</code></pre>
-<p>Now that R has <code>weight_kg</code> in memory, we can do arithmetic with it. For instance, we may want to convert this weight into pounds (weight in pounds is 2.2 times the weight in kg):</p>
-<pre class="r"><code>2.2 * weight_kg</code></pre>
-<pre><code>## [1] 121</code></pre>
-<p>We can also change an object’s value by assigning it a new one:</p>
-<pre class="r"><code>weight_kg &lt;- 57.5
-2.2 * weight_kg</code></pre>
-<pre><code>## [1] 126.5</code></pre>
-<p>This means that assigning a value to one object does not change the values of other objects For example, let’s store the animal’s weight in pounds in a new object, <code>weight_lb</code>:</p>
-<pre class="r"><code>weight_lb &lt;- 2.2 * weight_kg</code></pre>
-<p>and then change <code>weight_kg</code> to 100.</p>
-<pre class="r"><code>weight_kg &lt;- 100</code></pre>
-<p>What do you think is the current content of the object <code>weight_lb</code>? 126.5 or 220?</p>
-<div id="comments" class="section level3">
-<h3><span class="header-section-number">0.1.1</span> Comments</h3>
-<p>The comment character in R is <code>#</code>, anything to the right of a <code>#</code> in a script will be ignored by R. It is useful to leave notes and explanations in your scripts. RStudio makes it easy to comment or uncomment a paragraph: after selecting the lines you want to comment, press at the same time on your keyboard <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>. If you only want to comment out one line, you can put the cursor at any location of that line (i.e. no need to select the whole line), then press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>.</p>
-<blockquote>
-<h3 id="challenge"><span class="header-section-number">0.1.1</span> Challenge</h3>
-<p>What are the values after each statement in the following?</p>
-<pre class="r"><code>mass &lt;- 47.5            # mass?
-age  &lt;- 122             # age?
-mass &lt;- mass * 2.0      # mass?
-age  &lt;- age - 20        # age?
-mass_index &lt;- mass/age  # mass_index?</code></pre>
-</blockquote>
-</div>
-<div id="functions-and-their-arguments" class="section level3">
-<h3><span class="header-section-number">0.1.2</span> Functions and their arguments</h3>
-<p>Functions are “canned scripts” that automate more complicated sets of commands including operations assignments, etc. Many functions are predefined, or can be made available by importing R <em>packages</em> (more on that later). A function usually takes one or more inputs called <em>arguments</em>. Functions often (but not always) return a <em>value</em>. A typical example would be the function <code>sqrt()</code>. The input (the argument) must be a number, and the return value (in fact, the output) is the square root of that number. Executing a function (‘running it’) is called <em>calling</em> the function. An example of a function call is:</p>
-<pre class="r"><code>ten &lt;- sqrt(weight_kg)</code></pre>
-<p>Here, the value of <code>ten</code> is given to the <code>sqrt()</code> function, the <code>sqrt()</code> function calculates the square root, and returns the value which is then assigned to the object <code>weight_kg</code>. This function is very simple, because it takes just one argument.</p>
-<p>The return ‘value’ of a function need not be numerical (like that of <code>sqrt()</code>), and it also does not need to be a single item: it can be a set of things, or even a dataset. We’ll see that when we read data files into R.</p>
-<p>Arguments can be anything, not only numbers or filenames, but also other objects. Exactly what each argument means differs per function, and must be looked up in the documentation (see below). Some functions take arguments which may either be specified by the user, or, if left out, take on a <em>default</em> value: these are called <em>options</em>. Options are typically used to alter the way the function operates, such as whether it ignores ‘bad values’, or what symbol to use in a plot. However, if you want something specific, you can specify a value of your choice which will be used instead of the default.</p>
-<p>Let’s try a function that can take multiple arguments: <code>round()</code>.</p>
-<pre class="r"><code>round(3.14159)</code></pre>
-<pre><code>## [1] 3</code></pre>
-<p>Here, we’ve called <code>round()</code> with just one argument, <code>3.14159</code>, and it has returned the value <code>3</code>. That’s because the default is to round to the nearest whole number. If we want more digits we can see how to do that by getting information about the <code>round</code> function. We can use <code>args(round)</code> to find what arguments it takes, or look at the help for this function using <code>?round</code>.</p>
-<pre class="r"><code>args(round)</code></pre>
-<pre><code>## function (x, digits = 0) 
-## NULL</code></pre>
-<pre class="r"><code>?round</code></pre>
-<p>We see that if we want a different number of digits, we can type <code>digits = 2</code> or however many we want.</p>
-<pre class="r"><code>round(3.14159, digits = 2)</code></pre>
-<pre><code>## [1] 3.14</code></pre>
-<p>If you provide the arguments in the exact same order as they are defined you don’t have to name them:</p>
-<pre class="r"><code>round(3.14159, 2)</code></pre>
-<pre><code>## [1] 3.14</code></pre>
-<p>And if you do name the arguments, you can switch their order:</p>
-<pre class="r"><code>round(digits = 2, x = 3.14159)</code></pre>
-<pre><code>## [1] 3.14</code></pre>
-<p>It’s good practice to put the non-optional arguments (like the number you’re rounding) first in your function call, and to then specify the names of all optional arguments. If you don’t, someone reading your code might have to look up the definition of a function with unfamiliar arguments to understand what you’re doing.</p>
-</div>
-</div>
-<div id="vectors-and-data-types" class="section level2">
-<h2><span class="header-section-number">0.2</span> Vectors and data types</h2>
-<p>A vector is the most common and basic data type in R, and is pretty much the workhorse of R. A vector is composed by a series of values, which can be either numbers or characters. We can assign a series of values to a vector using the <code>c()</code> function. For example we can create a vector of animal weights and assign it to a new object <code>weight_g</code>:</p>
-<pre class="r"><code>weight_g &lt;- c(50, 60, 65, 82)
-weight_g</code></pre>
-<pre><code>## [1] 50 60 65 82</code></pre>
-<p>A vector can also contain characters:</p>
-<pre class="r"><code>animals &lt;- c(&quot;mouse&quot;, &quot;rat&quot;, &quot;dog&quot;)
-animals</code></pre>
-<pre><code>## [1] &quot;mouse&quot; &quot;rat&quot;   &quot;dog&quot;</code></pre>
-<p>The quotes around “mouse”, “rat”, etc. are essential here. Without the quotes R will assume objects have been created called <code>mouse</code>, <code>rat</code> and <code>dog</code>. As these objects don’t exist in R’s memory, there will be an error message.</p>
-<p>There are many functions that allow you to inspect the content of a vector. <code>length()</code> tells you how many elements are in a particular vector:</p>
-<pre class="r"><code>length(weight_g)</code></pre>
-<pre><code>## [1] 4</code></pre>
-<pre class="r"><code>length(animals)</code></pre>
-<pre><code>## [1] 3</code></pre>
-<p>An important feature of a vector, is that all of the elements are the same type of data. The function <code>class()</code> indicates what kind of object you are working with:</p>
-<pre class="r"><code>class(weight_g)</code></pre>
-<pre><code>## [1] &quot;numeric&quot;</code></pre>
-<pre class="r"><code>class(animals)</code></pre>
+<pre class="r"><code>y</code></pre>
+<pre><code>## [1] 2</code></pre>
+<pre class="r"><code>z</code></pre>
+<pre><code>## [1] 1</code></pre>
+<p>Variables can contain letter, digits, or periods. But it cannot start with a number.<br />
+Some examples:</p>
+<pre class="r"><code>the.number.two &lt;- 2  
+the.number.two</code></pre>
+<pre><code>## [1] 2</code></pre>
+<p>R supports various data types including Vectors, Lists, Matrices, and Data Frames. We can use <code>class</code> function to get the type of data.</p>
+<div id="vectors" class="section level3">
+<h3><span class="header-section-number">0.1.1</span> Vectors</h3>
+<p>Vectors are a collection of elements.</p>
+<pre class="r"><code># Create a vector
+my_letters &lt;- c(&#39;A&#39;,&#39;B&#39;,&quot;C&quot;)
+my_letters</code></pre>
+<pre><code>## [1] &quot;A&quot; &quot;B&quot; &quot;C&quot;</code></pre>
+<pre class="r"><code># Get the class of the vector.
+class(my_letters)</code></pre>
 <pre><code>## [1] &quot;character&quot;</code></pre>
-<p>The function <code>str()</code> provides an overview of the structure of an object and its elements. It is a useful function when working with large and complex objects:</p>
-<pre class="r"><code>str(weight_g)</code></pre>
-<pre><code>##  num [1:4] 50 60 65 82</code></pre>
-<pre class="r"><code>str(animals)</code></pre>
-<pre><code>##  chr [1:3] &quot;mouse&quot; &quot;rat&quot; &quot;dog&quot;</code></pre>
-<p>You can use the <code>c()</code> function to add other elements to your vector:</p>
-<pre class="r"><code>weight_g &lt;- c(weight_g, 90) # add to the end of the vector
-weight_g &lt;- c(30, weight_g) # add to the beginning of the vector
-weight_g</code></pre>
-<pre><code>## [1] 30 50 60 65 82 90</code></pre>
-<p>In the first line, we take the original vector <code>weight_g</code>, add the value <code>90</code> to the end of it, and save the result back into <code>weight_g</code>. Then we add the value <code>30</code> to the beginning, again saving the result back into <code>weight_g</code>.</p>
-<p>We can do this over and over again to grow a vector, or assemble a dataset. As we program, this may be useful to add results that we are collecting or calculating.</p>
-<p>An <strong>atomic vector</strong> is the simplest R <strong>data type</strong> and is a linear vector of a single type. Above, we saw 2 of the 6 main <strong>atomic vector</strong> types that R uses: <code>"character"</code> and <code>"numeric"</code> (or <code>"double"</code>). These are the basic building blocks that all R objects are built from. The other 4 <strong>atomic vector</strong> types are:</p>
-<ul>
-<li><code>"logical"</code> for <code>TRUE</code> and <code>FALSE</code> (the boolean data type)</li>
-<li><code>"integer"</code> for integer numbers (e.g., <code>2L</code>, the <code>L</code> indicates to R that it’s an integer)</li>
-<li><code>"complex"</code> to represent complex numbers with real and imaginary parts (e.g., <code>1 + 4i</code>) and that’s all we’re going to say about them</li>
-<li><code>"raw"</code> for bitstreams that we won’t discuss further</li>
-</ul>
-<p>You can check the type of your vector using the <code>typeof()</code> function and inputting your vector as the argument.</p>
-<p>Vectors are one of the many <strong>data structures</strong> that R uses. Other important ones are lists (<code>list</code>), matrices (<code>matrix</code>), data frames (<code>data.frame</code>), factors (<code>factor</code>) and arrays (<code>array</code>).</p>
-<blockquote>
-<h3 id="challenge-1"><span class="header-section-number">0.2</span> Challenge</h3>
-<ul>
-<li>We’ve seen that atomic vectors can be of type character, numeric (or double), integer, and logical. But what happens if we try to mix these types in a single vector?</li>
-</ul>
-<div class="accordion">
-<h3 class="toc-ignore">
-Answer
-</h3>
-<div style="background: #fff;">
-<p>
-R implicitly converts them to all be the same type
+<div id="referencing-and-indexing-objects-in-r" class="section level4">
+<h4><span class="header-section-number">0.1.1.1</span> Referencing and Indexing Objects in R</h4>
+<p>In <code>R</code>, specific elements in an object are referenced by using brackets (i.e. <code>[</code> <code>]</code>). For example:</p>
+<pre class="r"><code>x &lt;- c(1,2,3,4,5)  
+x[5] # what is the fifth element in x?  </code></pre>
+<pre><code>## [1] 5</code></pre>
+<pre class="r"><code>x[2:4] # what are the second through fourth elements in x?  </code></pre>
+<pre><code>## [1] 2 3 4</code></pre>
+<pre class="r"><code>x[c(1,4)] # what are the first and fourth elements in x?  </code></pre>
+<pre><code>## [1] 1 4</code></pre>
+<pre class="r"><code># note the difference in use between [#:#] and [c(#,#)].</code></pre>
+<p>We can also change values by indexing:</p>
+<pre class="r"><code>x[5]   &lt;- 3 # change the fifth element in x to 5.  
+x[5]</code></pre>
+<pre><code>## [1] 3</code></pre>
+<pre class="r"><code>x[1:5] &lt;- 0 # change the first through fifth elements in x to 0. 
+x</code></pre>
+<pre><code>## [1] 0 0 0 0 0</code></pre>
 </div>
 </div>
-</p>
-<ul>
-<li><p>What will happen in each of these examples? (hint: use <code>class()</code> to check the data type of your objects):</p>
-<pre class="r"><code>num_char &lt;- c(1, 2, 3, &quot;a&quot;)
-num_logical &lt;- c(1, 2, 3, TRUE)
-char_logical &lt;- c(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, TRUE)
-tricky &lt;- c(1, 2, 3, &quot;4&quot;)</code></pre></li>
-<li><p>Why do you think it happens?</p></li>
-</ul>
-<div class="accordion">
-<h3 class="toc-ignore">
-Answer
-</h3>
-<div style="background: #fff;">
-<p>
-Vectors can be of only one data type. R tries to convert (coerce) the content of this vector to find a “common denominator” that doesn’t lose any information.
-</div>
-</div>
-</p>
-<ul>
-<li><p>How many values in <code>combined_logical</code> are <code>"TRUE"</code> (as a character) in the following example (reusing the 2 <code>..._logical</code>s from above):</p>
-<pre class="r"><code>combined_logical &lt;- c(num_logical, char_logical)</code></pre></li>
-</ul>
-<div class="accordion">
-<h3 class="toc-ignore">
-Answer
-</h3>
-<div style="background: #fff;">
-<p>
-Only one. There is no memory of past data types, and the coercion happens the first time the vector is evaluated. Therefore, the <code>TRUE</code> in <code>num_logical</code> gets converted into a <code>1</code> before it gets converted into <code>"1"</code> in <code>combined_logical</code>.
-</div>
-</div>
-</p>
-<ul>
-<li>You’ve probably noticed that objects of different types get converted into a single, shared type within a vector. In R, we call converting objects from one class into another class <em>coercion</em>. These conversions happen according to a hierarchy, whereby some types get preferentially coerced into other types. Can you draw a diagram that represents the hierarchy of how these data types are coerced?</li>
-</ul>
-<div class="accordion">
-<h3 class="toc-ignore">
-Answer
-</h3>
-<div style="background: #fff;">
-<p>
-logical → numeric → character ← logical
-</div>
-</div>
-</p>
-</blockquote>
-</div>
-<div id="subsetting-vectors" class="section level2">
-<h2><span class="header-section-number">0.3</span> Subsetting vectors</h2>
-<p>If we want to extract one or several values from a vector, we must provide one or several indices in square brackets. For instance:</p>
-<pre class="r"><code>animals &lt;- c(&quot;mouse&quot;, &quot;rat&quot;, &quot;dog&quot;, &quot;cat&quot;)
-animals[2]</code></pre>
-<pre><code>## [1] &quot;rat&quot;</code></pre>
-<pre class="r"><code>animals[c(3, 2)]</code></pre>
-<pre><code>## [1] &quot;dog&quot; &quot;rat&quot;</code></pre>
-<p>We can also repeat the indices to create an object with more elements than the original one:</p>
-<pre class="r"><code>more_animals &lt;- animals[c(1, 2, 3, 2, 1, 4)]
-more_animals</code></pre>
-<pre><code>## [1] &quot;mouse&quot; &quot;rat&quot;   &quot;dog&quot;   &quot;rat&quot;   &quot;mouse&quot; &quot;cat&quot;</code></pre>
-<p>R indices start at 1. Programming languages like Fortran, MATLAB, Julia, and R start counting at 1, because that’s what human beings typically do. Languages in the C family (including C++, Java, Perl, and Python) count from 0 because that’s simpler for computers to do.</p>
-<div id="conditional-subsetting" class="section level3">
-<h3><span class="header-section-number">0.3.1</span> Conditional subsetting</h3>
-<p>Another common way of subsetting is by using a logical vector. <code>TRUE</code> will select the element with the same index, while <code>FALSE</code> will not:</p>
-<pre class="r"><code>weight_g &lt;- c(21, 34, 39, 54, 55)
-weight_g[c(TRUE, FALSE, FALSE, TRUE, TRUE)]</code></pre>
-<pre><code>## [1] 21 54 55</code></pre>
-<p>Typically, these logical vectors are not typed by hand, but are the output of other functions or logical tests. For instance, if you wanted to select only the values above 50:</p>
-<pre class="r"><code>weight_g &gt; 50    # will return logicals with TRUE for the indices that meet the condition</code></pre>
-<pre><code>## [1] FALSE FALSE FALSE  TRUE  TRUE</code></pre>
-<pre class="r"><code>## so we can use this to select only the values above 50
-weight_g[weight_g &gt; 50]</code></pre>
-<pre><code>## [1] 54 55</code></pre>
-<p>You can combine multiple tests using <code>&amp;</code> (both conditions are true, AND) or <code>|</code> (at least one of the conditions is true, OR):</p>
-<pre class="r"><code>weight_g[weight_g &gt; 30 &amp; weight_g &lt; 50]</code></pre>
-<pre><code>## [1] 34 39</code></pre>
-<pre class="r"><code>weight_g[weight_g &lt;= 30 | weight_g == 55]</code></pre>
-<pre><code>## [1] 21 55</code></pre>
-<pre class="r"><code>weight_g[weight_g &gt;= 30 &amp; weight_g == 21]</code></pre>
-<pre><code>## numeric(0)</code></pre>
-<p>Here, <code>&gt;</code> for “greater than”, <code>&lt;</code> stands for “less than”, <code>&lt;=</code> for “less than or equal to”, and <code>==</code> for “equal to”. The double equal sign <code>==</code> is a test for numerical equality between the left and right hand sides, and should not be confused with the single <code>=</code> sign, which performs variable assignment (similar to <code>&lt;-</code>).</p>
-<p>A common task is to search for certain strings in a vector. One could use the “or” operator <code>|</code> to test for equality to multiple values, but this can quickly become tedious. The function <code>%in%</code> allows you to test if any of the elements of a search vector are found:</p>
-<pre class="r"><code>animals &lt;- c(&quot;mouse&quot;, &quot;rat&quot;, &quot;dog&quot;, &quot;cat&quot;)
-animals[animals == &quot;cat&quot; | animals == &quot;rat&quot;] # returns both rat and cat</code></pre>
-<pre><code>## [1] &quot;rat&quot; &quot;cat&quot;</code></pre>
-<pre class="r"><code>animals %in% c(&quot;rat&quot;, &quot;cat&quot;, &quot;dog&quot;, &quot;duck&quot;, &quot;goat&quot;)</code></pre>
-<pre><code>## [1] FALSE  TRUE  TRUE  TRUE</code></pre>
-<pre class="r"><code>animals[animals %in% c(&quot;rat&quot;, &quot;cat&quot;, &quot;dog&quot;, &quot;duck&quot;, &quot;goat&quot;)]</code></pre>
-<pre><code>## [1] &quot;rat&quot; &quot;dog&quot; &quot;cat&quot;</code></pre>
-<blockquote>
-<h3 id="challenge-optional" class="challenge"><span class="header-section-number">0.3.1</span> Challenge (optional)</h3>
-<ul>
-<li>Can you figure out why <code>"four" &gt; "five"</code> returns <code>TRUE</code>?</li>
-</ul>
-<div class="accordion">
-<h3 class="toc-ignore">
-Answer
-</h3>
-<div style="background: #fff;">
-<p>
-When using “&gt;” or “&lt;” on strings, R compares their alphabetical order. Here “four” comes after “five”, and therefore is “greater than” it.
-</div>
-</div>
-</p>
-</blockquote>
-</div>
-</div>
-<div id="missing-data" class="section level2">
-<h2><span class="header-section-number">0.4</span> Missing data</h2>
-<p>As R was designed to analyze datasets, it includes the concept of missing data (which is uncommon in other programming languages). Missing data are represented in vectors as <code>NA</code>.</p>
-<p>When doing operations on numbers, most functions will return <code>NA</code> if the data you are working with include missing values. This feature makes it harder to overlook the cases where you are dealing with missing data. You can add the argument <code>na.rm = TRUE</code> to calculate the result while ignoring the missing values.</p>
-<pre class="r"><code>heights &lt;- c(2, 4, 4, NA, 6)
-mean(heights)</code></pre>
-<pre><code>## [1] NA</code></pre>
-<pre class="r"><code>max(heights)</code></pre>
-<pre><code>## [1] NA</code></pre>
-<pre class="r"><code>mean(heights, na.rm = TRUE)</code></pre>
-<pre><code>## [1] 4</code></pre>
-<pre class="r"><code>max(heights, na.rm = TRUE)</code></pre>
-<pre><code>## [1] 6</code></pre>
-<p>If your data include missing values, you may want to become familiar with the functions <code>is.na()</code>, <code>na.omit()</code>, and <code>complete.cases()</code>. See below for examples.</p>
-<pre class="r"><code>## Extract those elements which are not missing values.
-heights[!is.na(heights)]</code></pre>
-<pre><code>## [1] 2 4 4 6</code></pre>
-<pre class="r"><code>## Returns the object with incomplete cases removed. 
-#The returned object is an atomic vector of type `&quot;numeric&quot;` (or #`&quot;double&quot;`).
-na.omit(heights)</code></pre>
-<pre><code>## [1] 2 4 4 6
-## attr(,&quot;na.action&quot;)
+<div id="lists" class="section level3">
+<h3><span class="header-section-number">0.1.2</span> Lists:</h3>
+<p>A list can contain many different types of elements like vectors, functions and even another list inside it.</p>
+<pre class="r"><code># Create a list.
+my_list &lt;- list(c(2,5,3),4,log,&quot;A&quot;)
+my_list</code></pre>
+<pre><code>## [[1]]
+## [1] 2 5 3
+## 
+## [[2]]
 ## [1] 4
-## attr(,&quot;class&quot;)
-## [1] &quot;omit&quot;</code></pre>
-<pre class="r"><code>## Extract those elements which are complete cases. 
-#The returned object is an atomic vector of type `&quot;numeric&quot;` (or #`&quot;double&quot;`).
-heights[complete.cases(heights)]</code></pre>
-<pre><code>## [1] 2 4 4 6</code></pre>
-<p>Recall that you can use the <code>typeof()</code> function to find the type of your atomic vector.</p>
-<blockquote>
-<h3 id="challenge-2"><span class="header-section-number">0.4</span> Challenge</h3>
-<ol style="list-style-type: decimal">
-<li><p>Using this vector of heights in inches, create a new vector, <code>heights_no_na</code>, with the NAs removed.</p>
-<pre class="r"><code>heights &lt;- c(63, 69, 60, 65, NA, 68, 61, 70, 61, 59, 64, 69, 63, 63, NA, 72, 65, 64, 70, 63, 65)</code></pre></li>
-<li><p>Use the function <code>median()</code> to calculate the median of the <code>heights</code> vector.</p></li>
-<li><p>Use R to figure out how many people in the set are taller than 67 inches.</p></li>
-</ol>
-<div class="accordion">
-<h3 class="toc-ignore">
-Answer
-</h3>
-<div style="background: #fff;">
-<pre class="r"><code>heights &lt;- c(63, 69, 60, 65, NA, 68, 61, 70, 61, 59, 64, 69, 63, 63, NA, 72, 65, 64, 70, 63, 65)
-
-# 1.
-heights_no_na &lt;- heights[!is.na(heights)] 
-# or
-heights_no_na &lt;- na.omit(heights)
-# or
-heights_no_na &lt;- heights[complete.cases(heights)]
-
-# 2.
-median(heights, na.rm = TRUE)</code></pre>
-<pre><code>## [1] 64</code></pre>
-<pre class="r"><code># 3.
-heights_above_67 &lt;- heights_no_na[heights_no_na &gt; 67]
-length(heights_above_67)</code></pre>
-<pre><code>## [1] 6</code></pre>
+## 
+## [[3]]
+## function (x, base = exp(1))  .Primitive(&quot;log&quot;)
+## 
+## [[4]]
+## [1] &quot;A&quot;</code></pre>
+<pre class="r"><code>class(my_list)</code></pre>
+<pre><code>## [1] &quot;list&quot;</code></pre>
+<pre class="r"><code>#indexing to get 5th element
+my_list[4]</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;A&quot;</code></pre>
+</div>
+<div id="matrices" class="section level3">
+<h3><span class="header-section-number">0.1.3</span> Matrices</h3>
+<p>A matrix is a two-dimensional representation of data. Matrices can be created by combining existing vectors using the <code>rbind()</code> and <code>cbind()</code> functions.It can be also created using a vector input to the <code>matrix</code> function.</p>
+<pre class="r"><code>x  &lt;- c(6,5,4,3,2)
+y  &lt;- c(8,7,5,3,1)
+m1 &lt;- rbind(x,y) #bind x and y by row to create a 2 X 5 matrix.
+m1 #just enter the name of the object to print it.</code></pre>
+<pre><code>##   [,1] [,2] [,3] [,4] [,5]
+## x    6    5    4    3    2
+## y    8    7    5    3    1</code></pre>
+<pre class="r"><code>m2 &lt;- cbind(x,y) #bind x and y by column to create a 5 X 2 matrix.
+m2 #just enter the name of the object to print it.</code></pre>
+<pre><code>##      x y
+## [1,] 6 8
+## [2,] 5 7
+## [3,] 4 5
+## [4,] 3 3
+## [5,] 2 1</code></pre>
+<pre class="r"><code>m3 &lt;- matrix(c(1,2,3,4,5,6),nrow=2,ncol=3)
+m3</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    1    3    5
+## [2,]    2    4    6</code></pre>
+<p>We can index the matrix <code>m1</code> or <code>m2</code> by using the brackets <code>[ ]</code> with a comma between the two dimensions. Since a matrix is 2-dimensions, we can reference a specific element, an entire row, or an entire column:</p>
+<pre class="r"><code>m1[2,2] #what is the value of the element in the 2nd row, 2nd column?</code></pre>
+<pre><code>## y 
+## 7</code></pre>
+<pre class="r"><code>m1[,2]  #what are the values in the second column?</code></pre>
+<pre><code>## x y 
+## 5 7</code></pre>
+<pre class="r"><code>m1[2,]  #what are the values in the second row?</code></pre>
+<pre><code>## [1] 8 7 5 3 1</code></pre>
+<pre class="r"><code>m2[2,2] &lt;- 0 #change the value to zero.
+m2[2,]  &lt;- 0 #change the second row to zeros.
+m2[,2]  &lt;- 0 #change the second column to zeros.
+m2</code></pre>
+<pre><code>##      x y
+## [1,] 6 0
+## [2,] 0 0
+## [3,] 4 0
+## [4,] 3 0
+## [5,] 2 0</code></pre>
+</div>
+<div id="data-frames" class="section level3">
+<h3><span class="header-section-number">0.1.4</span> Data frames</h3>
+<p>Data frames are tabular represeantion of data. Unlike a matrix, in data frame each column can contain different types of data. The first column can be numeric while the second column can be character and third column can be logical. It is a list of vectors of equal length. Data Frames are created using the <em>data.frame()</em> function.</p>
+<pre class="r"><code># Create the data frame
+my_data &lt;-  data.frame(
+   gender = c(&quot;Female&quot;, &quot;Male&quot;,&quot;Female&quot;), 
+   height = c(160.2,170.2,165.1), 
+   weight = c(150,185,120),
+   Age = c(40,31,24)
+)
+my_data</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["gender"],"name":[1],"type":["chr"],"align":["left"]},{"label":["height"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["weight"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Age"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"Female","2":"160.2","3":"150","4":"40"},{"1":"Male","2":"170.2","3":"185","4":"31"},{"1":"Female","2":"165.1","3":"120","4":"24"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>#indexing to desired element</p>
+<pre class="r"><code>my_data[1,]</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["gender"],"name":[1],"type":["chr"],"align":["left"]},{"label":["height"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["weight"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Age"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"Female","2":"160.2","3":"150","4":"40","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code>my_data[2,3]</code></pre>
+<pre><code>## [1] 185</code></pre>
 </div>
 </div>
-</blockquote>
+<div id="r-session-management" class="section level2">
+<h2><span class="header-section-number">0.2</span> R Session Management</h2>
+<p>When you start <code>R</code>, it looks for user-written programs and data files in current-working directory.</p>
+<p>To determine the current directory, type: <code>getwd()</code>.<br />
+You can set the working directory also by typing: <code>setwd("</code>your desired directory here<code>")</code>.</p>
+<pre class="r"><code>getwd()</code></pre>
+<pre><code>## [1] &quot;/Users/wouma/Desktop/osc_training/RNA-Seq/RNA-Seq-2020&quot;</code></pre>
+<p>All variables created in <code>R</code> are stored in the memory as “workspace”. To see what exists in the workspace, type: <code>ls()</code>.<br />
+We can remove specific variables with the <code>rm()</code> function. This helps clear up space (i.e. conserve memory). For example:</p>
+<pre class="r"><code>x&lt;-seq(1,5,1) # create the object.
+#ls()         # see the objects.
+rm(x)# remove the object x.
+#ls()</code></pre>
+<p>To remove everything from the workspace use: <code>rm(list=ls())</code>. This is helpful for starting a session to make sure everything is cleaned out.</p>
+<p>To save the workspace use the <code>save.image()</code> function. This function requires a file path, a file name, and the extension “.RData” which is the format for an R workspace file.</p>
+<p>For example, to save a workspace called “RWorkshop” to the current directory, simply type: <code>save.image("RWorkshop.Rdata")</code>.</p>
+<p>To load a previously saved workspace, you can either click on the file outside of R or use the <code>load()</code> function (e.g. <code>load("RWorkshop.Rdata")</code>). If you get an error, make sure you are referring the correct directory. You can also choose Load Workspace from the pull-down menu.</p>
+<p>Note that only the objects in the workspace are saved, not the text of what you have written.</p>
+<pre class="r"><code>save.image(&quot;RWorkshop.Rdata&quot;)
+load(&quot;RWorkshop.Rdata&quot;)
+#ls()</code></pre>
+</div>
+<div id="functions-in-r" class="section level2">
+<h2><span class="header-section-number">0.3</span> Functions in R</h2>
+<p>A major strength of <code>R</code> is the ability to manipulate objects using functions. A function takes an argument (aka input) and returns some value (aka output).</p>
+<p>For example, suppose we wanted to create a list of numbers, called a <em>vector</em>. We want to create an object that is defined by the list of numbers. In R, there is a preprogrammed function <code>c()</code>, which combines or <em>concatenates</em> values to create a single object. We can create an object <code>x</code>, that is a vector of 1, 2, 3, 4, and 5 using: <code>x &lt;- c(1,2,3,4,5)</code>.</p>
+<p>This reads: the object x is assigned the values 1, 2, 3, 4, and 5. The function is “<code>c</code>” and the argument is <code>1,2,3,4,5</code>.</p>
+<p>The number of values (aka elements) a vector contains is referred to as the “length”. We can use the <code>length()</code> function to return this information for us. For example: <code>length(x)</code> shows that the vector <code>x</code> has 5 values or elements.</p>
+<pre class="r"><code>x &lt;- c(1,2,3,4,5)
+x</code></pre>
+<pre><code>## [1] 1 2 3 4 5</code></pre>
+<pre class="r"><code>length(x)</code></pre>
+<pre><code>## [1] 5</code></pre>
+</div>
+<div id="packages-and-the-install.packages-and-library-functions" class="section level2">
+<h2><span class="header-section-number">0.4</span> Packages and the <code>install.packages()</code> and <code>library()</code> Functions</h2>
+<p><code>R</code> has MANY preprogrammed functions that are automatically loaded when you open the program. Functions are stored in “packages”. Although there are many preprogrammed functions, there are even MORE functions that you can install on your own. A package in <code>R</code> is a collection of functions, usually written for a specific purpose.</p>
+<p>R comes with a single library $R_HOME/library which contains the standard and recommended packages. This is usually in a system location. On Owens, it is at /usr/local/R/gnu/9.1/3.6.3/lib64/R for R/3.6.3. OSC also installs popular R packages into the site located at/usr/local/R/gnu/9.1/3.6.3/site/pkgs for R/3.6.3 on Owens.</p>
+<p>Users can check the library path as follows after launching an R session;</p>
+<pre class="r"><code>.libPaths()</code></pre>
+<pre><code>## [1] &quot;/Library/Frameworks/R.framework/Versions/4.0/Resources/library&quot;</code></pre>
+<p>Users can check the list of available packages as follows;</p>
+<pre class="r"><code>installed.packages()</code></pre>
+<p>To install local R packages, use install.package() command. For example,</p>
+<pre class="r"><code>#install.packages(&quot;sudoku&quot;)
+#library(sudoku)
+#help(sudoku)</code></pre>
+<p>Install packages to specific path</p>
+<pre class="r"><code>#install.packages(&quot;sudoku&quot;, repos=&quot;http://cran.us.r-project.org&quot;,lib= /users/PZS0680/soottikkal/Rworkshop )</code></pre>
+<p>Load a package from a specific paths</p>
+<pre class="r"><code>#library(sudoku, lib.loc=&quot;/users/PZS0680/soottikkal/Rworkshop/Rworkshop&quot;)</code></pre>
+<p>Installing Packages from GitHub Users can install R packages directly from Github using devtools package as follows</p>
+<pre class="r"><code>#install.packages(&quot;devtools&quot;)
+#devtools::install_github(&quot;author/package&quot;)</code></pre>
+<p>Installing Packages from Bioconductor Users can install R packages directly from Bioconductor using BiocManager.</p>
+<pre class="r"><code>#install.packages(&quot;BiocManager&quot;)
+#BiocManager::install(c(&quot;GenomicRanges&quot;, &quot;Organism.dplyr&quot;))</code></pre>
 <p>Now that we have learned how to write scripts, and the basics of R’s data structures, we are ready to delve into RNA-Seq data analysis.</p>
+</div>
+<div id="acknowledgment" class="section level2">
+<h2><span class="header-section-number">0.5</span> Acknowledgment</h2>
+<p>Materials for this section (intro to <code>R</code>) we largely prepared by Shameema Oottikkal, a Data Applications Engineer at OSC</p>
 </div>
 
 
