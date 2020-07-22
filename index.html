@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Wilbur Ouma, Client Engineer" />
+<meta name="author" content="Wilbur Ouma, Senior Systems Consultant (Client Engineer)" />
 
 
 <title>RNA-Seq data analysis at OSC, 2020</title>
@@ -297,11 +297,20 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">RNA-Seq data analysis at OSC, 2020</h1>
-<h4 class="author">Wilbur Ouma, Client Engineer</h4>
+<h4 class="author">Wilbur Ouma, Senior Systems Consultant (Client Engineer)</h4>
 
 </div>
 
 
+<style type="text/css">
+body{ /* Normal  */
+      font-size: 16px;
+  }
+
+code.r{ /* Code block */
+    font-size: 14px;
+}
+</style>
 <p>
 </p>
 <div style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
@@ -309,28 +318,28 @@ $(document).ready(function () {
 </div>
 <p>
 </p>
-<div id="preamble" class="section level2">
-<h2>Preamble</h2>
-<p>Measuring gene expression on a genome-wide scale has become common practice over the last two decades or so, with microarrays predominantly used pre-2008. With the advent of next generation sequencing technology in 2008, an increasing number of scientists use this technology to measure and understand changes in gene expression in often complex systems. As sequencing costs have decreased, using RNA-Seq to simultaneously measure the expression of tens of thousands of genes for multiple samples has never been easier. The cost of these experiments has now moved from generating the data to storing and analyzing it.</p>
-<p>There are many steps involved in analysing an RNA-Seq experiment. Analysing an RNAseq experiment begins with sequencing reads. These are aligned to a reference genome, then the number of reads mapped to each gene can be counted. This results in a table of counts, which is what we perform statistical analyses on in R. While mapping and counting are important and necessary tasks, today we will be starting from the count data and getting stuck into analysis.</p>
+<div id="outline" class="section level2">
+<h2>Outline</h2>
+<p>In this workshop, you will learn how to analyze RNA-seq count data, using <code>R</code>. This will include reading count data into <code>R</code>, quality control, and performing differential expression analysis, with a focus on the <code>edgeR</code> package. This workshop is aimed at biologists interested in learning how to perform differential expression analysis of RNA-seq data count data. Preprocessing of raw sequence reads will not be covered here.</p>
 </div>
 <div id="course-prerequisites-requirements" class="section level2">
 <h2>Course Prerequisites &amp; Requirements</h2>
-<p>Some basic <code>R</code> knowledge is assumed. If you are not familiar with the <code>R</code> statistical programming language we strongly encourage you to work through the <a href="introR.html">Intro to R</a> materials before attempting these materials. We recommend reading our R crash course before attending, which should take around 1 hour. This workshop is aimed at biologists interested in learning how to perform differential expression analysis of RNA-seq data when reference genomes are available. The course will not cover all stages in the RNA-Seq but will focus on analysis of count data, with the assumption that raw sequence reads from RNA-Seq experiments have been properly processed (quality control and alignment to reference genomes)</p>
+<p>Some basic <code>R</code> knowledge is assumed. If you are not familiar with the <code>R</code> statistical programming language we strongly encourage you to work through the <a href="introR.html">Intro to R</a> materials before attempting these materials. In addition, an understanding of basic probability and statistics concepts — such as probability distributions and linear regression models — is encouraged.</p>
 </div>
 <div id="learning-objectives" class="section level2">
 <h2>Learning Objectives:</h2>
 <ul>
-<li>Pre-process RNA-Seq read counts</li>
-<li>Fit a statistical models on count data and perform hypothesis testing to identify deferentially expressed genes (DEGs)</li>
+<li>To pre-process RNA-Seq read counts</li>
+<li>To identify deferentially expressed genes (DEGs)</li>
 </ul>
 </div>
 <div id="data" class="section level2">
 <h2>Data</h2>
+<p>Data for this workshop comes from a Nature Scientific Data paper by <a href="https://www.nature.com/articles/sdata2018290">Zhang et al., 2018</a>. The corresponding count data is available in the figshare repository: <a href="https://ndownloader.figshare.com/files/23241812" class="uri">https://ndownloader.figshare.com/files/23241812</a></p>
 </div>
 <div id="software" class="section level2">
 <h2>Software</h2>
-<p>You will be learning how to analyse RNA-seq count data, using R, with focus on the edgeR package. Additional packages that will be used include: <code>tidyverse</code> (for data wrangling, includes <code>ggplot2</code>, <code>dplyr</code>, <code>tidy</code>, <code>readr</code>); <code>RColorBrewer</code> (a colour scheme for plotting); and <code>Glimma</code> (for interactive plots). All the R packages will be automatically loaded in the R session at OSC. However, individual packakes need to be loaded to your R environment when working on your local machine.</p>
+<p>You will be learning how to analyze RNA-seq count data, using <code>R</code>, with focus on the <code>edgeR</code> package. Additional <code>R</code> packages that will be used include: <code>tidyverse</code> (for data wrangling, includes <code>ggplot2</code>, <code>dplyr</code>, <code>tidy</code>, <code>readr</code>); <code>RColorBrewer</code> (a colour scheme for plotting); and <code>Glimma</code> (for interactive plots). If you are not familiar with installing and loading <code>R</code> packages, see section 0.4 of <a href="introR.html">Intro to R</a>.</p>
 </div>
 
 
