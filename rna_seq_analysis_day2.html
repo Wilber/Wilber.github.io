@@ -11,7 +11,7 @@
 
 
 
-<title>Multi-factor RNA-Seq Data Analysis (Under development)</title>
+<title>Multi-factor RNA-Seq Data Analysis</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -255,11 +255,11 @@ $(document).ready(function () {
 
 <style type="text/css">
 
-#TOC {
+#section-TOC {
   margin: 25px 0px 20px 0px;
 }
 @media (max-width: 768px) {
-#TOC {
+#section-TOC {
   position: relative;
   width: 100%;
 }
@@ -328,7 +328,7 @@ div.tocify {
 <!-- setup 3col/9col grid for toc_float and main content  -->
 <div class="row-fluid">
 <div class="col-xs-12 col-sm-4 col-md-3">
-<div id="TOC" class="tocify">
+<div id="section-TOC" class="tocify">
 </div>
 </div>
 
@@ -369,11 +369,11 @@ div.tocify {
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-<div class="fluid-row" id="header">
+<div class="fluid-row" id="section-header">
 
 
 
-<h1 class="title toc-ignore">Multi-factor RNA-Seq Data Analysis (Under development)</h1>
+<h1 class="title toc-ignore">Multi-factor RNA-Seq Data Analysis</h1>
 
 </div>
 
@@ -387,7 +387,7 @@ code.r{ /* Code block */
     font-size: 14px;
 }
 </style>
-<div id="overview" class="section level2">
+<div id="section-overview" class="section level2">
 <h2><span class="header-section-number">0.1</span> Overview</h2>
 <ul>
 <li>Statistical inference overview</li>
@@ -397,27 +397,24 @@ code.r{ /* Code block */
 <li>Useful graphics</li>
 </ul>
 </div>
-<div id="statistical-inference" class="section level2">
+<div id="section-statistical-inference" class="section level2">
 <h2><span class="header-section-number">0.2</span> Statistical Inference</h2>
-<p>The type of model to fit the data and hypothesis testing depend on the research question. In this initial analysis, we would like to identify genes that are differentially expressed as a result of treatment with salt, adjusting for the location effect (beach and inland).</p>
+<p>The goal of differential gene expression analysis is to determine if the change in expression — for each gene independently, in different conditions — is statistically significant. To achieve this, we will fit a statistical model to expression data of each gene and perform hypothesis tests. Our goal is to determine if a gene is differentially expressed upon salt treatment, <em><strong>while adjusting for any changes that might arise due to the effect of location (inland and beach).</strong> </em></p>
 <p>The idea of hypothesis testing is that:</p>
-<ul>
-<li><strong>We formalize a hypothesis (H1, the alternative hypotesis) into a statement</strong>, such as:
-<ul>
-<li>gene <em>g</em> is differentially expressed between the conditions</li>
-</ul></li>
-<li><strong>Collect appropriate data</strong>
+<ol style="list-style-type: decimal">
+<li><p><strong>We formalize a hypothesis — <span class="math inline">\(H_A\)</span>, the alternative hypothesis — into a statement</strong>, such as: gene <em>g</em> is differentially expressed between the conditions</p></li>
+<li><p><strong>Collect appropriate data</strong></p>
 <p>
 </p></li>
-</ul>
+</ol>
 <div style="text-align: center; margin-top: 5px; margin-bottom: 5px;">
 <p><img src="data.png" /></p>
 </div>
 <p>
 </p>
-<ul>
-<li>fit the model for each gene</li>
-</ul>
+<ol start="3" style="list-style-type: decimal">
+<li><strong>Fit the model for each gene</strong></li>
+</ol>
 <p>
 </p>
 <div style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
@@ -425,10 +422,17 @@ code.r{ /* Code block */
 </div>
 <p>
 </p>
-<p>A typical analysis involves fitting regression models. These can take the form of <span class="math inline">\(Y = b0 +b1 ∗x+e\)</span>, where <span class="math inline">\(Y\)</span> is all (normalized) expression values for a gene in all conditions, the coefficient <span class="math inline">\(b0\)</span> represents the average value of the baseline group, and <span class="math inline">\(b1\)</span> is the difference between baseline (control) and non-reference group (treatment). Note that in this workshop we fit on a negative binomial model to read counts, hence the need for a <strong>Generalized linear model</strong>. Also,this type of additive model corrects/adjusts for baseline differences between the locations.</p>
+<p>A typical analysis involves fitting regression models. These can take the form of:</p>
+<p><span class="math inline">\(Y = \beta_0 + \beta_1 X+ \epsilon\)</span>, where</p>
 <ul>
-<li><strong>Use statistics to quantify the difference</strong></li>
+<li><span class="math inline">\(Y\)</span> denotes normalized expression values for a gene in all conditions</li>
+<li><span class="math inline">\(\beta_0\)</span> coefficient is the intercept, and typically represents the average expression of the baseline (control) group</li>
+<li><span class="math inline">\(\beta_1\)</span> is the treatment effect</li>
 </ul>
+<p>Note that in this workshop we fit on a negative binomial model to read counts, hence the need for a <strong>Generalized linear model (GLM)</strong>. GLMs are an extension of classical linear models to non-normally distributed response data.</p>
+<ol start="4" style="list-style-type: decimal">
+<li><strong>Use statistics to quantify the difference</strong></li>
+</ol>
 <p>
 </p>
 <div style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
@@ -437,32 +441,42 @@ code.r{ /* Code block */
 <p>
 </p>
 <ul>
-<li><strong>Then determine if the hypothesis is true or not</strong>
-<ul>
-<li>Hypothesis testing with likelihood ratio tests (LRTs)</li>
+<li>Hypothesis testing with likelihood ratio tests (LRTs): Test of the goodness-of-fit between two models</li>
 <li>Correction for multiple hypothesis testing</li>
-</ul></li>
 </ul>
 </div>
-<div id="design-matrix" class="section level2">
+<div id="section-design-matrix" class="section level2">
 <h2><span class="header-section-number">0.3</span> Design matrix</h2>
-<p>We first create a design matrix for the linear models. A design matrix represents the independent variables/factors that have an influence in the response variable (gene expression), but also the way we have coded the information and the design of the experiment. There are many ways of creating the design matrix, but the most important thing to remember is that the biological question determines how the matrix is created, and subsequently how we frame hypothesis tests. In this analysis we wish to test whether — for each gene — the expression of differs significantly between plants treated with salt and the controls, after adjusting for differences between land and beach. In statistical terms, this is an additive linear model, and will be reflected in the design matrix. This type of additive model corrects/adjusts for baseline differences between locations.</p>
-<p>We create a design matrix using the <code>model.matrix</code> function.</p>
-<p>Let us first load required packages:</p>
+<p>We first create a design matrix for the linear models. A design matrix represents the independent variables/factors that have an influence in the response variable (gene expression), and also the way we have coded the information and the design of the experiment. There are many ways of creating the design matrix, but the most important thing to remember is that the biological question determines how the matrix is created, and subsequently how we frame hypothesis tests. In this analysis we wish to test whether — for each gene — the expression differs significantly between plants treated with salt and water control, after adjusting for differences between land and beach. In statistical terms, this is an additive linear model, and will be reflected in the design matrix. This type of additive model corrects/adjusts for baseline differences between locations.</p>
+<p>Let us first load required packages.</p>
 <pre class="r"><code>library(edgeR) #Main package for DE analysis
 library(tidyverse) #Data wrangling package, includes ggplot2, dplyr, tidy, readr
 library(RColorBrewer) #Colour scheme for plotting
 library(Glimma) #Interactive MD plots
 library(gplots)</code></pre>
-<p>Then get the original copy of the DGE object from the previous analysis</p>
+<p>Then load the original copy of the <code>DGEList</code> object from the previous analysis to the current R environment.</p>
 <pre class="r"><code>dge&lt;-readRDS(&quot;dge_orig.rds&quot;)
 lcpm &lt;- cpm(dge, log=TRUE)</code></pre>
-<p>Note that for a multivariate model, all combinations of treatments/group should be replicated in the second variable/factor. That is, we should have Control (C) and Treatment (T) samples in <strong>both</strong> inland and beach. We specify the group factor in the <code>dge_method2</code> to reflect this:</p>
+<p>If you do not have the “dge_orig.rds” in your local directory from previous analysis, download the object from a public repository as shown below (remember to remove the comments #):</p>
+<pre class="r"><code>#download.file(url=&quot;https://ndownloader.figshare.com/files/24103316&quot;, destfile = &quot;test.rds&quot;)
+#dge&lt;-readRDS(&quot;dge_orig.rds&quot;)
+#lcpm &lt;- cpm(dge, log=TRUE)</code></pre>
+<p>Note that for a multivariate model, all combinations of treatments/group should be replicated in the second variable/factor. That is, we should have Control (C) and Treatment (T) samples in <strong>both</strong> inland and beach.</p>
+<p>We create a design matrix using the <code>model.matrix</code> function.</p>
 <pre class="r"><code>group&lt;-as.factor(rep(c(&quot;C&quot;,&quot;T&quot;,&quot;C&quot;,&quot;T&quot;), c(3,3,3,3)))
 location&lt;-as.factor(rep(c(&quot;inland&quot;,&quot;beach&quot;),c(6,6)))
+
+#We make &quot;inland&quot; the reference level
 location&lt;-relevel(location,&quot;inland&quot;)
+
+#Create the design matrix, with intercept
+#The order matters: our factor of interest LAST
 mod &lt;- model.matrix(~ location + group)
-# rename rows of the model to correspond to sample names
+
+#With intercept:
+#mod &lt;- model.matrix(0 + location + group)
+
+#Rename rows of the model to correspond to sample names
 rownames(mod) &lt;- colnames(dge)</code></pre>
 <p>Let us take a look at the model:</p>
 <pre class="r"><code>mod</code></pre>
@@ -487,20 +501,37 @@ rownames(mod) &lt;- colnames(dge)</code></pre>
 ## 
 ## attr(,&quot;contrasts&quot;)$group
 ## [1] &quot;contr.treatment&quot;</code></pre>
-<p>We are interested in coefficient number 3 (groupT). This the (dummy/indicator) variable that defines the effect of treatment (salt or no salt) on expression.</p>
-<p>We see three coefficients (sometimes called “dummy variables”), the last coefficient (coefficient 3) representing the effect of treatment on gene expression, after adjusting for the location. This is our coefficient of interest.</p>
+<p>We see three coefficients, sometimes called “dummy variables or indicator functions”. The last coefficient (coefficient 3, groupT) representing the effect of treatment on gene expression, after adjusting for the location. This is our coefficient of interest.</p>
+<p>Notice how indicator variables take on values of either 0 or 1. For instance, ‘groupT’ takes on a value of 1 if the sample is treated, otherwise 0.</p>
+<p>The ‘Intercept’ coefficient represents the (average) baseline expression at inland location.</p>
 </div>
-<div id="estimate-dispersion" class="section level2">
+<div id="section-estimate-dispersion" class="section level2">
 <h2><span class="header-section-number">0.4</span> Estimate dispersion</h2>
-<p>The number/count of reads <span class="math inline">\(K\)</span> for a gene <span class="math inline">\(g\)</span> are commonly modeled with the Poisson distribution <span class="math inline">\(K_g ∼ Pois(λ)\)</span>, whose mean and variance are both equal to <span class="math inline">\(λ\)</span>. Due to heterogeneity (difference between replicates), the variance is often much larger than the mean, making the Poisson assumption not realistic. A negative binomial distribution — an approximation of the Poisson distribution where the variance is allowed to exceed the mean — is preferred, hence the need to estimate an overdispersion parameter <span class="math inline">\(φ\)</span> that arises. The variance of read counts for a gene then becomes <span class="math inline">\(Var(K_g) = λ_g + φ_gλ^2_g.\)</span>. We estimate the overdispersion parameter using the <code>estimateDisp</code> function.</p>
-<pre class="r"><code>  dge2 &lt;- estimateDisp(dge, design = mod)</code></pre>
+<p>The number/count of reads <span class="math inline">\(K_g\)</span> for a gene <span class="math inline">\(g\)</span> are commonly modeled with the Poisson distribution <span class="math inline">\(K_g ∼ Pois(λ_g)\)</span>, whose mean and variance are both equal to <span class="math inline">\(λ_g\)</span>. Due to heterogeneity (difference between replicates), the variance is often much larger than the mean, making the Poisson assumption not realistic. A negative binomial distribution — an approximation of the Poisson distribution where the variance is allowed to exceed the mean — is preferred, hence the need to estimate an overdispersion parameter <span class="math inline">\(φ_g\)</span> that arises. The variance of read counts for a gene then becomes <span class="math inline">\(Var(K_g) = λ_g + φ_gλ^2_g\)</span>. We estimate the overdispersion parameter using the <code>estimateDisp</code> function.</p>
+<pre class="r"><code>dge2 &lt;- estimateDisp(dge, design = mod)</code></pre>
+<p>We then plot the biological coefficient of variation (BCV). BCV is the coefficient of variation (CV) with which the (unknown) true abundance of the gene varies between replicate RNA samples. It represents the CV that would remain between biological replicates if sequencing depth could be increased indefinitely. The BCV is the square root of the negative binomial dispersion.</p>
+<pre class="r"><code>plotBCV(dge2)</code></pre>
+<p><img src="rna_seq_analysis_day2_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 </div>
-<div id="model-fitting-hypothesis-testing" class="section level2">
+<div id="section-model-fitting-hypothesis-testing" class="section level2">
 <h2><span class="header-section-number">0.5</span> Model fitting &amp; Hypothesis testing</h2>
-<p>We fit a negative binomial generalized log-linear (GLM) model to the read counts for each gene, using the edgeR <code>glmFit</code> function.</p>
+<p>We fit a negative binomial GLM to the read counts for each gene, using the edgeR <code>glmFit</code> function.</p>
 <pre class="r"><code>  fit &lt;- glmFit(dge2, mod)</code></pre>
-<p>We determine differential expression by performing a likelihood ratio test (LRT) using the edgeR’s <code>glmLRT</code> function.</p>
-<p>We first check whether there was a genuine need to adjust for location. We do this by testing differential expression between the two locations. The intercept coefficient term specifies the average baseline expression for inland, while coefficient 2 (locationbeach) corresponds to “offset” relative to inland, i.e the effect of beach.</p>
+<p>We determine differential expression by performing a likelihood ratio test (LRT) using the edgeR’s <code>glmLRT</code> function. LRTs are used to compare a null model <span class="math inline">\(m_O\)</span> to an alternative model <span class="math inline">\(m_A\)</span>, such that <span class="math inline">\(m_O\)</span> is nested in <span class="math inline">\(m_A\)</span>.</p>
+<p>In a univariate simple linear regression example:</p>
+<p><span class="math inline">\(Y = \beta_0 + \beta_1X\)</span></p>
+<p>The null model <span class="math inline">\(m_O\)</span> becomes:</p>
+<p><span class="math inline">\(H_O: Y = \beta_0\)</span></p>
+<p>The alternative model <span class="math inline">\(m_A\)</span> becomes:</p>
+<p><span class="math inline">\(H_A: Y = \beta_0 + \beta_1X\)</span></p>
+<p>A LRT determines whether <span class="math inline">\(\beta_0\)</span> alone can explain the change in <span class="math inline">\(Y\)</span> without the need for <span class="math inline">\(\beta_1\)</span>, hence the null hypothesis that the smaller model is the “best” model.</p>
+<p>Mathematically, the LRT statistic is defined by:</p>
+<p><span class="math inline">\(LRT=-2ln\left(\displaystyle \frac{\hat\theta_O|X}{\hat\theta_A|X}\right)\)</span>, where:</p>
+<ul>
+<li><span class="math inline">\(\hat\theta_O\)</span> and <span class="math inline">\(\hat\theta_A\)</span> are the maximum likelihood estimators (MLEs) for the parameters of the respective models: <span class="math inline">\(\hat\beta_0\)</span> and <span class="math inline">\(\hat\beta_1\)</span>. Maximum likelihood is a method of estimating parameters, such as <span class="math inline">\(\hat\beta_0\)</span> and <span class="math inline">\(\hat\beta_1\)</span>.</li>
+</ul>
+<p>The LRT statistic is then compared to a <span class="math inline">\(\chi^2\)</span> distribution with degrees of freedom equal the difference in the number of parameters for the two models.</p>
+<p>Before identifying DEGs in salt treatment (using LRT), we first check whether there was a genuine need to adjust for location. We do this by testing differential expression between the two locations. The intercept coefficient term specifies the average baseline expression for inland, while coefficient 2 (locationbeach) corresponds to “offset” relative to inland, <em>i.e</em> the effect of beach. The goodness-of-fit LRT compares the reduced model with one predictor (Intercept only, null hypothesis) with larger model having two predictors (Intercept and locationbeach).</p>
 <pre class="r"><code>#LRT: inland Vs beach
 glf_B_vs_I &lt;-glmLRT(fit, coef = 2)
 #extract most DEGs
@@ -510,14 +541,27 @@ topTags(glf_B_vs_I)[[1]][,7:11]</code></pre>
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["logFC"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["logCPM"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["LR"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["PValue"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["FDR"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"-3.126930","2":"5.273563","3":"1189.8227","4":"9.933988e-261","5":"2.701747e-256","_rn_":"20341"},{"1":"3.257970","2":"7.329624","3":"1188.1875","4":"2.251568e-260","5":"3.061795e-256","_rn_":"9337"},{"1":"-5.051393","2":"3.445024","3":"1099.8968","4":"3.477928e-241","5":"3.152974e-237","_rn_":"18542"},{"1":"-8.277393","2":"2.465482","3":"862.9268","4":"1.125334e-189","5":"7.651430e-186","_rn_":"9344"},{"1":"-9.318828","2":"3.740185","3":"803.7941","4":"8.075400e-177","5":"4.392533e-173","_rn_":"9824"},{"1":"4.655828","2":"2.817757","3":"756.9022","4":"1.266586e-166","5":"5.741223e-163","_rn_":"23504"},{"1":"6.311861","2":"3.766809","3":"667.7407","4":"3.097032e-147","5":"1.203285e-143","_rn_":"6124"},{"1":"-2.172440","2":"4.360141","3":"624.9606","4":"6.235080e-138","5":"2.119693e-134","_rn_":"22435"},{"1":"-6.920618","2":"1.803280","3":"536.2920","4":"1.208109e-118","5":"3.650772e-115","_rn_":"3407"},{"1":"-8.527026","2":"2.202229","3":"480.8644","4":"1.385666e-106","5":"3.768595e-103","_rn_":"20261"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+<p>The result of the columns is a follows:</p>
+<ul>
+<li>logFC: the logarithm (to base 2) of the fold change</li>
+<li>logCPM: the average log2 counts-per-million (CPM) for each gene</li>
+<li>PValue: p value for the statistical significance of this change</li>
+<li>FDR p value adjusted for multiple testing with the Benjamini-Hochberg procedure</li>
+</ul>
 <p>We observe a number of DEGs between beach and inland, hence need to adjust for that effect since we are interested in the treatment effect.</p>
-<p>We perform LRT to obtain DEGs for the treatment effect, adjusting for location</p>
+<p>Next, we perform LRT to obtain DEGs for the treatment effect, adjusting for location differences.</p>
 <pre class="r"><code>#LRT
 glf_T_vs_C &lt;-glmLRT(fit, coef = 3)</code></pre>
 </div>
-<div id="correcting-for-multiple-hypothesis-testing" class="section level2">
+<div id="section-correcting-for-multiple-hypothesis-testing" class="section level2">
 <h2><span class="header-section-number">0.6</span> Correcting for multiple hypothesis testing</h2>
 <p>Since we are fitting one model for each gene of interest, and therefore performing thousands of tests, we run into an issue where the Type I error is not equal to the significance level of each test. We try to fix this by performing multiple test correction, also known as adjusting P values. See <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6099145/">Jafari &amp; Ansari-Pour., 2018</a> for a review of different methods of adjusting P values.</p>
+<p>Some of the methods for adjusting p values include:</p>
+<ul>
+<li>Benjamini-Hochberg</li>
+<li>Bonferroni</li>
+<li>BY: Benjamini, Hochberg, and Yekutieli</li>
+</ul>
 <p>Let us first interrogate the top DEGs:</p>
 <pre class="r"><code>topTags(glf_T_vs_C)</code></pre>
 <pre><code>## Coefficient:  groupT 
@@ -537,7 +581,8 @@ glf_T_vs_C &lt;-glmLRT(fit, coef = 3)</code></pre>
 
 #subset to get the dataframe from the edgeR object
 pvals_T_vs_C&lt;-pvals_T_vs_C[[1]] </code></pre>
-<p>Next, count genes with adjusted P value of less than 0.1 (i.e FDR &lt;= 0.1). We will use the data wrangling package <code>dplyr</code>, which is included in <code>tidyverse</code> package. We obtain the top 10 genes, with FDR cutoff of 0.1</p>
+<p>Next, count genes with adjusted P value of less than or equal to 0.1 (i.e FDR &lt;= 0.1). We will use the data wrangling package <code>dplyr</code>, which is included in <code>tidyverse</code> package.</p>
+<p>We first obtain the top 10 genes, with FDR cutoff of 0.1</p>
 <pre class="r"><code>pvals_T_vs_C %&gt;%
   dplyr::filter(FDR &lt;= 0.1) %&gt;%
   head(10)</code></pre>
@@ -546,7 +591,7 @@ pvals_T_vs_C&lt;-pvals_T_vs_C[[1]] </code></pre>
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Geneid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Chr"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Start"],"name":[3],"type":["int"],"align":["right"]},{"label":["End"],"name":[4],"type":["int"],"align":["right"]},{"label":["Strand"],"name":[5],"type":["chr"],"align":["left"]},{"label":["Length"],"name":[6],"type":["int"],"align":["right"]},{"label":["logFC"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["logCPM"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["LR"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["PValue"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["FDR"],"name":[11],"type":["dbl"],"align":["right"]}],"data":[{"1":"Phvul.004G056400.v1.0","2":"Chr04","3":"7396606","4":"7397508","5":"-","6":"903","7":"6.119634","8":"4.370175","9":"1116.0744","10":"1.059813e-244","11":"2.882374e-240","_rn_":"9569"},{"1":"Phvul.007G231800.v1.0","2":"Chr07","3":"47146783","4":"47148189","5":"-","6":"1407","7":"5.119555","8":"6.641357","9":"806.1278","10":"2.510605e-177","11":"3.414046e-173","_rn_":"17196"},{"1":"Phvul.009G106400.v1.0","2":"Chr09","3":"16017975","4":"16023446","5":"+","6":"5472","7":"-2.665181","8":"6.519445","9":"695.4608","10":"2.902632e-153","11":"2.631429e-149","_rn_":"21686"},{"1":"Phvul.001G263200.v1.0","2":"Chr01","3":"51729773","4":"51729982","5":"+","6":"210","7":"5.091628","8":"4.077005","9":"671.6537","10":"4.364981e-148","11":"2.967859e-144","_rn_":"2632"},{"1":"Phvul.002G280400.v1.0","2":"Chr02","3":"44427703","4":"44428818","5":"-","6":"1116","7":"6.250393","8":"2.352673","9":"633.0100","10":"1.107065e-139","11":"6.021769e-136","_rn_":"5498"},{"1":"Phvul.009G027600.v1.0","2":"Chr09","3":"6151941","4":"6152698","5":"+","6":"758","7":"5.665508","8":"5.731779","9":"632.0508","10":"1.789766e-139","11":"8.112711e-136","_rn_":"20898"},{"1":"Phvul.007G100900.v1.0","2":"Chr07","3":"10966196","4":"10970519","5":"-","6":"4324","7":"2.496623","8":"5.403144","9":"609.1785","10":"1.688195e-134","11":"6.559119e-131","_rn_":"15887"},{"1":"Phvul.009G034300.v1.0","2":"Chr09","3":"7372885","4":"7373614","5":"+","6":"730","7":"-4.379391","8":"4.006566","9":"572.7380","10":"1.424735e-126","11":"4.843564e-123","_rn_":"20965"},{"1":"Phvul.002G110600.v1.0","2":"Chr02","3":"22492109","4":"22493173","5":"+","6":"1065","7":"3.899224","8":"2.637592","9":"561.7387","10":"3.518792e-124","11":"1.063340e-120","_rn_":"3800"},{"1":"Phvul.009G168000.v1.0","2":"Chr09","3":"24532274","4":"24533798","5":"+","6":"1525","7":"5.785088","8":"2.247885","9":"528.0753","10":"7.407530e-117","11":"2.014626e-113","_rn_":"22302"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<p>Bottom DEGs bellow. Note that the FDR cutoff of 0.1 falls within the raw P value of 0.05, corresponding to the an adjusted Type I error.</p>
+<p>We can also interrogate bottom DEGs. Note that the FDR cutoff of 0.1 falls within the raw P value of 0.05, corresponding to the an adjusted Type I error.</p>
 <pre class="r"><code>pvals_T_vs_C %&gt;%
   dplyr::filter(FDR &lt;= 0.1) %&gt;%
   tail()</code></pre>
@@ -555,7 +600,7 @@ pvals_T_vs_C&lt;-pvals_T_vs_C[[1]] </code></pre>
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Geneid"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Chr"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Start"],"name":[3],"type":["int"],"align":["right"]},{"label":["End"],"name":[4],"type":["int"],"align":["right"]},{"label":["Strand"],"name":[5],"type":["chr"],"align":["left"]},{"label":["Length"],"name":[6],"type":["int"],"align":["right"]},{"label":["logFC"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["logCPM"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["LR"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["PValue"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["FDR"],"name":[11],"type":["dbl"],"align":["right"]}],"data":[{"1":"Phvul.002G040300.v1.0","2":"Chr02","3":"3850968","4":"3854378","5":"-","6":"3411","7":"0.1436158","8":"7.367673","9":"4.159760","10":"0.04139528","11":"0.09952505","_rn_":"3097"},{"1":"Phvul.007G203900.v1.0","2":"Chr07","3":"44302089","4":"44306629","5":"-","6":"4541","7":"-0.3034229","8":"3.228005","9":"4.158600","10":"0.04142362","11":"0.09958439","_rn_":"16917"},{"1":"Phvul.002G144200.v1.0","2":"Chr02","3":"28042759","4":"28043550","5":"-","6":"792","7":"1.0077532","8":"-2.692213","9":"4.157355","10":"0.04145410","11":"0.09964885","_rn_":"4136"},{"1":"Phvul.001G165600.v1.0","2":"Chr01","3":"42622772","4":"42635280","5":"+","6":"12509","7":"-0.2106174","8":"3.341611","9":"4.155871","10":"0.04149043","11":"0.09972738","_rn_":"1656"},{"1":"Phvul.005G145600.v1.0","2":"Chr05","3":"37400600","4":"37401377","5":"+","6":"778","7":"0.8267982","8":"-2.109310","9":"4.152231","10":"0.04157971","11":"0.09993315","_rn_":"12250"},{"1":"Phvul.009G139200.v1.0","2":"Chr09","3":"20479369","4":"20482437","5":"+","6":"3069","7":"0.1828632","8":"6.956001","9":"4.151268","10":"0.04160335","11":"0.09998111","_rn_":"22014"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
-<p>Obtain the number of genes with FDR cutoff of 0.1</p>
+<p>We now obtain the total number of DEGs with FDR cutoff of 0.1</p>
 <pre class="r"><code>pvals_T_vs_C %&gt;%
   filter(FDR &lt;= 0.1) %&gt;%
   count() </code></pre>
@@ -564,8 +609,14 @@ pvals_T_vs_C&lt;-pvals_T_vs_C[[1]] </code></pre>
 {"columns":[{"label":["n"],"name":[1],"type":["int"],"align":["right"]}],"data":[{"1":"11317"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+<blockquote>
+<p>Learning Check:</p>
+<ul>
+<li>How many genes are DE with FDR &lt;=0.1 using Bonferroni method? Which of the two methods (BH Vs Bonferroni) seem to be more stringent?</li>
+</ul>
+</blockquote>
 </div>
-<div id="useful-graphical-representations-of-differential-expression-results" class="section level2">
+<div id="section-useful-graphical-representations-of-differential-expression-results" class="section level2">
 <h2><span class="header-section-number">0.7</span> Useful graphical representations of differential expression results</h2>
 <p>Get number of up and down regulated genes:</p>
 <pre class="r"><code>dt&lt;-decideTests(glf_T_vs_C, adjust.method = &quot;BH&quot;, p.value = 0.1)
@@ -574,7 +625,7 @@ summary(dt)</code></pre>
 ## Down     5360
 ## NotSig  15880
 ## Up       5957</code></pre>
-<p>with ggplot</p>
+<p>We then make a scatter-plot showing the DEGs</p>
 <pre class="r"><code>#create a dataframe with &#39;sign&#39; column showing Up, Down, or Non.sig
 sign.dat&lt;-glf_T_vs_C$table %&gt;%
   dplyr::mutate(sign=case_when(logFC&gt;0 &amp; PValue &lt; 0.05 ~ &quot;Up&quot;,
@@ -582,8 +633,13 @@ sign.dat&lt;-glf_T_vs_C$table %&gt;%
                                PValue &gt; 0.05 ~ &quot;Non.sigf&quot;)
                 )
 
-#head(sign.dat)
-ggplot(sign.dat, aes(x = logCPM, y=logFC,col=sign)) +
+head(sign.dat)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["logFC"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["logCPM"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["LR"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["PValue"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["sign"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"1.320086e-01","2":"1.878448","3":"1.118005","4":"0.2903484459","5":"Non.sigf","_rn_":"1"},{"1":"2.788107e-16","2":"-4.145482","3":"0.000000","4":"1.0000000000","5":"Non.sigf","_rn_":"2"},{"1":"-1.217978e-01","2":"6.605610","3":"2.698515","4":"0.1004417448","5":"Non.sigf","_rn_":"3"},{"1":"-1.372893e-01","2":"2.735289","3":"1.147032","4":"0.2841712730","5":"Non.sigf","_rn_":"4"},{"1":"-5.092399e-01","2":"5.371403","3":"8.230077","4":"0.0041201778","5":"Down","_rn_":"5"},{"1":"-5.136369e-01","2":"3.255135","3":"13.362925","4":"0.0002566478","5":"Down","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code>ggplot(sign.dat, aes(x = logCPM, y=logFC,col=sign)) +
 #  geom_point(alpha=0.4) + 
   geom_point() + 
   scale_colour_manual(values=c(&quot;blue&quot;,&quot;black&quot;,&quot;red&quot;)) + 
@@ -595,16 +651,10 @@ ggplot(sign.dat, aes(x = logCPM, y=logFC,col=sign)) +
     axis.text.x = element_text(size = 14), 
     axis.text.y = element_text(size = 14)
   )</code></pre>
-<p><img src="rna_seq_analysis_day2_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
-<p>Interactive MD plot</p>
-<pre class="r"><code>#install Glimma package
-#if (!requireNamespace(&quot;BiocManager&quot;, quietly = TRUE))
-#  install.packages(&quot;BiocManager&quot;)
-#BiocManager::install(&quot;Glimma&quot;)
-
-#library(Glimma)
-#glMDPlot(glf_Inland_T_vs_Inland_C, coef=1, status=dt, #main=colnames(glf_Inland_T_vs_Inland_C)[1],
-#         side.main=&quot;ENTREZID&quot;, counts=lcpm, groups=glf_Inland_T_vs_Inland_C$samples$group, launch=TRUE)</code></pre>
+<p><img src="rna_seq_analysis_day2_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<p>We can create an interactive MD plot using the <code>glmMDplot</code> function from <code>Glimma</code> package:</p>
+<pre class="r"><code>glMDPlot(glf_T_vs_C  , coef=3, status=dt, #main=colnames(glf_Inland_T_vs_Inland_C)[1],
+         side.main=&quot;Geneid&quot;, counts=lcpm, groups=group, launch=TRUE)</code></pre>
 <p>Heatmap of the top 100 DE genes</p>
 <pre class="r"><code>#install.packages(&quot;gplots&quot;)
 library(gplots)
@@ -614,8 +664,16 @@ mycol &lt;- colorpanel(1000,&quot;blue&quot;,&quot;white&quot;,&quot;red&quot;)
 heatmap.2(lcpm[i,], scale=&quot;row&quot;,
           labRow=dge$genes$Geneid[i], labCol=rownames(dge$samples),
           col=mycol, trace=&quot;none&quot;, density.info=&quot;none&quot;, dendrogram=&quot;column&quot;)</code></pre>
-<p><img src="rna_seq_analysis_day2_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
-<p>The above heatmap has samples from all locations, our interest for now is inland. However, looks like (as expected), all treatment samples are clustering together, irrespective of location.</p>
+<p><img src="rna_seq_analysis_day2_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+<p>As expected, we observe two main clusters, wherein samples are group based on on treatment and control. Additionally, all biological replicates are clustered together.</p>
+</div>
+<div id="section-conclussion" class="section level2">
+<h2><span class="header-section-number">0.8</span> Conclussion</h2>
+<ul>
+<li>Think about the study design and the data analysis approach before executing the experiment</li>
+<li>Remember to account for other potential effects—for instance sequencing lane effect, or batch effect—in your statistical model</li>
+<li>RNA-Seq data analysis is an iterative process. Compare results from different statistical models, or packages.</li>
+</ul>
 </div>
 
 
@@ -642,7 +700,7 @@ $(document).ready(function () {
 
 <script>
 $(document).ready(function () {
-  window.buildTabsets("TOC");
+  window.buildTabsets("section-TOC");
 });
 
 $(document).ready(function () {
@@ -677,7 +735,7 @@ $(document).ready(function ()  {
     options.smoothScroll = true;
 
     // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
+    var toc = $("#section-TOC").tocify(options).data("toc-tocify");
 });
 </script>
 
