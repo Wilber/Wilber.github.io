@@ -11,7 +11,7 @@
 
 
 
-<title>Data Preprocessing</title>
+<title>Preprocessing of Count Data</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19,6 +19,15 @@
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
 <script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
@@ -28,12 +37,16 @@
 <link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
-<style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
-  pre:not([class]) {
-    background-color: white;
-  }
-</style>
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
 <script type="text/javascript">
 if (window.hljs) {
   hljs.configure({languages: []});
@@ -46,32 +59,7 @@ if (window.hljs) {
 
 
 
-<style type="text/css">
-h1 {
-  font-size: 34px;
-}
-h1.title {
-  font-size: 38px;
-}
-h2 {
-  font-size: 30px;
-}
-h3 {
-  font-size: 24px;
-}
-h4 {
-  font-size: 18px;
-}
-h5 {
-  font-size: 16px;
-}
-h6 {
-  font-size: 12px;
-}
-.table th:not([align]) {
-  text-align: left;
-}
-</style>
+
 
 
 
@@ -81,10 +69,6 @@ h6 {
   max-width: 940px;
   margin-left: auto;
   margin-right: auto;
-}
-code {
-  color: inherit;
-  background-color: rgba(0, 0, 0, 0.04);
 }
 img {
   max-width:100%;
@@ -101,40 +85,13 @@ button.code-folding-btn:focus {
 summary {
   display: list-item;
 }
+pre code {
+  padding: 0;
+}
 </style>
 
 
 <style type="text/css">
-/* padding for bootstrap navbar */
-body {
-  padding-top: 51px;
-  padding-bottom: 40px;
-}
-/* offset scroll position for anchor links (for fixed navbar)  */
-.section h1 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h2 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h3 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h4 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h5 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h6 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
 .dropdown-submenu {
   position: relative;
 }
@@ -162,7 +119,7 @@ body {
   margin-right: -10px;
 }
 .dropdown-submenu:hover>a:after {
-  border-left-color: #ffffff;
+  border-left-color: #adb5bd;
 }
 .dropdown-submenu.pull-left {
   float: none;
@@ -174,7 +131,7 @@ body {
 }
 </style>
 
-<script>
+<script type="text/javascript">
 // manage active state of menu based on current page
 $(document).ready(function () {
   // active menu anchor
@@ -185,10 +142,23 @@ $(document).ready(function () {
   var menuAnchor = $('a[href="' + href + '"]');
 
   // mark it active
-  menuAnchor.parent().addClass('active');
+  menuAnchor.tab('show');
 
   // if it's got a parent navbar menu mark it active as well
   menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
 });
 </script>
 
@@ -200,7 +170,6 @@ $(document).ready(function () {
   max-height: 500px;
   min-height: 44px;
   overflow-y: auto;
-  background: white;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
@@ -326,13 +295,13 @@ div.tocify {
 
 
 <!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row-fluid">
-<div class="col-xs-12 col-sm-4 col-md-3">
+<div class="row">
+<div class="col-sm-12 col-md-4 col-lg-3">
 <div id="TOC" class="tocify">
 </div>
 </div>
 
-<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+<div class="toc-content col-sm-12 col-md-8 col-lg-9">
 
 
 
@@ -361,6 +330,9 @@ div.tocify {
 <li>
   <a href="rna_seq_analysis_day2.html">Day 2</a>
 </li>
+<li>
+  <a href="rna_seq_analysis_day3.html">Day 3</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         
@@ -369,11 +341,11 @@ div.tocify {
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-<div class="fluid-row" id="header">
+<div id="header">
 
 
 
-<h1 class="title toc-ignore">Data Preprocessing</h1>
+<h1 class="title toc-ignore">Preprocessing of Count Data</h1>
 
 </div>
 
@@ -391,9 +363,10 @@ code.r{ /* Code block */
 <h2><span class="header-section-number">0.1</span> Overview</h2>
 <ul>
 <li>Reading in table of counts</li>
-<li>Filtering lowly expressed genes</li>
-<li>Quality control</li>
+<li>Data transformation</li>
+<li>Gene filtering</li>
 <li>Normalization for composition bias</li>
+<li>Sample clustering</li>
 </ul>
 </div>
 <div id="experimental-design" class="section level2">
@@ -401,17 +374,31 @@ code.r{ /* Code block */
 <p>Data for this workshop comes from a Nature Scientific Data paper by <a href="https://www.nature.com/articles/sdata2018290">Zhang et al., 2018</a>. The study examimes mechanisms of saline adaptation of a plant (<em>Strophostyles helvola</em>) related to the common bean (<em>Phaseolus vulgaris</em>). Briefly stated, the study reported the RNA-seq analyses of two genotypes (a salt tolerant beach genotype and a salt-sensitive inland genotype, see figure bellow) and provided sequence data for community use. Sequence data was deposited into the National Center for Biotechnology Information (NCBI) Sequence Read Archive (SRA) repository, and the abundance count for all the samples was deposited at Gene Expression Omnibus (GEO) database.</p>
 <p>
 </p>
-<div style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
+<div style="text-align: center; margin-top: 5px; margin-bottom: 5px; width:75%">
 <p><img src="flowChart.png" /></p>
 </div>
 <p>
 </p>
 <p>First, we load required packages:</p>
-<pre class="r"><code>library(edgeR) #Main package for DE analysis
-library(tidyverse) #Data wrangling package, includes ggplot2, dplyr, tidy, readr
-library(RColorBrewer) #Colour scheme for plotting
+<pre class="r"><code>library(edgeR) #Main package for DE analysis</code></pre>
+<pre><code>## Loading required package: limma</code></pre>
+<pre class="r"><code>library(tidyverse) #Data wrangling package, includes ggplot2, dplyr, tidy, readr</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
+## ✓ tibble  3.1.1     ✓ dplyr   1.0.6
+## ✓ tidyr   1.1.3     ✓ stringr 1.4.0
+## ✓ readr   1.4.0     ✓ forcats 0.5.1</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(RColorBrewer) #Colour scheme for plotting
 library(Glimma) #Interactive MD plots
 library(gplots)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;gplots&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     lowess</code></pre>
 <p>For this workshop, the count data from the study will be obtained from the figshare repository, as shown bellow:</p>
 <pre class="r"><code>download.file(url = &quot;https://ndownloader.figshare.com/files/23241812&quot;,
               destfile = &quot;gene_counts.txt&quot;)</code></pre>
@@ -491,13 +478,14 @@ group</code></pre>
 location&lt;-as.factor(rep(c(&quot;inland&quot;,&quot;beach&quot;),c(6,6)))
 dge$samples$location&lt;-location
 location</code></pre>
-<pre><code>##  [1] inland inland inland inland inland inland beach  beach  beach  beach  beach  beach 
+<pre><code>##  [1] inland inland inland inland inland inland beach  beach  beach  beach 
+## [11] beach  beach 
 ## Levels: beach inland</code></pre>
 <p>Next, we verify that we have “C” and “T” in both inland and beach:</p>
 <pre class="r"><code>dge$samples</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["group"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["lib.size"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["norm.factors"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["location"],"name":[4],"type":["fctr"],"align":["left"]}],"data":[{"1":"C","2":"40619905","3":"1","4":"inland","_rn_":"IC3"},{"1":"C","2":"35114368","3":"1","4":"inland","_rn_":"IC1"},{"1":"C","2":"34833786","3":"1","4":"inland","_rn_":"IC2"},{"1":"T","2":"36399307","3":"1","4":"inland","_rn_":"IT2"},{"1":"T","2":"41939123","3":"1","4":"inland","_rn_":"IT1"},{"1":"T","2":"42597147","3":"1","4":"inland","_rn_":"IT3"},{"1":"C","2":"32496003","3":"1","4":"beach","_rn_":"BC2"},{"1":"C","2":"31262960","3":"1","4":"beach","_rn_":"BC3"},{"1":"C","2":"33240392","3":"1","4":"beach","_rn_":"BC1"},{"1":"T","2":"31682364","3":"1","4":"beach","_rn_":"BT1"},{"1":"T","2":"30170320","3":"1","4":"beach","_rn_":"BT2"},{"1":"T","2":"34386767","3":"1","4":"beach","_rn_":"BT3"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["group"],"name":[1],"type":["fct"],"align":["left"]},{"label":["lib.size"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["norm.factors"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["location"],"name":[4],"type":["fct"],"align":["left"]}],"data":[{"1":"C","2":"40619905","3":"1","4":"inland","_rn_":"IC3"},{"1":"C","2":"35114368","3":"1","4":"inland","_rn_":"IC1"},{"1":"C","2":"34833786","3":"1","4":"inland","_rn_":"IC2"},{"1":"T","2":"36399307","3":"1","4":"inland","_rn_":"IT2"},{"1":"T","2":"41939123","3":"1","4":"inland","_rn_":"IT1"},{"1":"T","2":"42597147","3":"1","4":"inland","_rn_":"IT3"},{"1":"C","2":"32496003","3":"1","4":"beach","_rn_":"BC2"},{"1":"C","2":"31262960","3":"1","4":"beach","_rn_":"BC3"},{"1":"C","2":"33240392","3":"1","4":"beach","_rn_":"BC1"},{"1":"T","2":"31682364","3":"1","4":"beach","_rn_":"BT1"},{"1":"T","2":"30170320","3":"1","4":"beach","_rn_":"BT2"},{"1":"T","2":"34386767","3":"1","4":"beach","_rn_":"BT3"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Save the <code>DGEList</code> object in order to maintain an original copy.</p>
@@ -514,7 +502,7 @@ lcpm &lt;- cpm(dge, log=TRUE)
 
 L &lt;- mean(dge$samples$lib.size) * 1e-6 #average library size in Millions
 M &lt;- median(dge$samples$lib.size) * 1e-6 #median lib size </code></pre>
-<p>View the distribution of log-CPM, for inland control replicates:</p>
+<p>View the distribution of CPM values, for inland control replicates:</p>
 <pre class="r"><code>#summary(lcpm)
 summary(cpm)[,1:3]</code></pre>
 <pre><code>##       IC3                 IC1                 IC2           
@@ -529,16 +517,20 @@ summary(cpm)[,1:3]</code></pre>
 <h2><span class="header-section-number">0.4</span> Gene filtering</h2>
 <p>Genes with very low counts across all libraries provide little evidence for differential expression and they interfere with some of the statistical approximations that are used later in the pipeline. They also add to the multiple testing burden when estimating false discovery rates, reducing power to detect DEGs. These genes should be filtered out prior to further analysis.</p>
 <p>We remove genes that are lowly expressed using the <code>filterByExpr</code> edgeR function. By default, the function keeps genes with about 10 read counts or more in a minimum number of samples, where the number of samples is chosen according to the minimum group sample size. The actual filtering uses CPM values rather than counts in order to avoid giving preference to samples with large library sizes. For example, if the median library size is about 51 million and 10/51 ≈ 0.2, so the <code>filterByExpr</code> function keeps genes that have a CPM of 0.2 or more in at least three samples.</p>
-<pre class="r"><code>dim(dge) #retrieve dimentions of the dge object</code></pre>
-<pre><code>## [1] 27197    12</code></pre>
-<pre class="r"><code>keep.exprs &lt;- filterByExpr(dge)
+<pre class="r"><code>#dim(dge) #retrieve dimensions of the dge object
+keep.exprs &lt;- filterByExpr(dge)
 #Minimum read count can also be explicitly specified, for instance &#39;5&#39; bellow: 
 #keep.exprs &lt;- filterByExpr(dge, min.count = 5, min.total.count = 5)
 
 dge &lt;- dge[keep.exprs,, keep.lib.sizes=FALSE]
-dim(dge)</code></pre>
-<pre><code>## [1] 21181    12</code></pre>
-<p>Let us plot line graphs depicting the effect of filtering out genes with low expression values:</p>
+#dim(dge)</code></pre>
+<blockquote>
+<p><strong>Learning Check!</strong></p>
+<ul>
+<li>How many genes genes have we removed from the data set due to low expression?</li>
+</ul>
+</blockquote>
+<p>Let us plot line graphs depicting the effect of filtering out genes with low expression values. Each line is a sample, and the density is for log-cpm values in each sample.</p>
 <pre class="r"><code>lcpm.cutoff &lt;- log2(10/M + 2/L)
 nsamples &lt;- ncol(dge)
 col &lt;- brewer.pal(nsamples, &quot;Paired&quot;)
@@ -573,7 +565,7 @@ samplenames&lt;-c(&quot;Inland_c3&quot;,&quot;Inland_c1&quot;,&quot;Inland_c2&qu
 barplot(dge$samples$lib.size, las = 2, names.arg = samplenames)</code></pre>
 <p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
 <p>The overall strategy with normalization is to choose an appropriate baseline, and express sample counts relative to that baseline.</p>
-<p>At lot of different normalization methods exist, but we will use TMM normalization in this tutorial.</p>
+<p>Different normalization methods exist, but we will use TMM normalization in this tutorial.</p>
 <p>
 </p>
 <div style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
@@ -581,7 +573,7 @@ barplot(dge$samples$lib.size, las = 2, names.arg = samplenames)</code></pre>
 </div>
 <p>
 </p>
-<p>Developed by <a href="https://genomebiology.biomedcentral.com/articles/10.1186/gb-2010-11-3-r25">Mark D Robinson and Oshlack, 2010</a>, the trimmed mean of M-values normalization method (TMM) is performed to eliminate composition biases between libraries. This generates a set of normalization factors, where the product of these factors and the library sizes defines the effective library size. The <code>calcNormFactors</code> function in edgeR calculates the normalization factors between libraries.</p>
+<p>Developed by <a href="https://genomebiology.biomedcentral.com/articles/10.1186/gb-2010-11-3-r25">Mark D Robinson and Oshlack, 2010</a>, the trimmed mean of M-values normalization method (TMM) is performed to eliminate composition biases between libraries. TMM normalization adjusts library sizes based on the assumption that most genes are not differentially expressed. TMM normalization generates a set of normalization factors, where the product of these factors and the library sizes defines the effective library size. The <code>calcNormFactors</code> function in edgeR calculates the normalization factors between libraries.</p>
 <p>Below, we first create a copy of raw data, followed by TMM normalization:</p>
 <pre class="r"><code>dge_unNorm&lt;-dge 
 dge &lt;- calcNormFactors(dge, method = &quot;TMM&quot;)</code></pre>
@@ -589,7 +581,7 @@ dge &lt;- calcNormFactors(dge, method = &quot;TMM&quot;)</code></pre>
 <pre class="r"><code>dge$samples</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["group"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["lib.size"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["norm.factors"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["location"],"name":[4],"type":["fctr"],"align":["left"]}],"data":[{"1":"C","2":"40607955","3":"0.9620536","4":"inland","_rn_":"IC3"},{"1":"C","2":"35103736","3":"0.9960395","4":"inland","_rn_":"IC1"},{"1":"C","2":"34823466","3":"0.9552281","4":"inland","_rn_":"IC2"},{"1":"T","2":"36387017","3":"1.0302307","4":"inland","_rn_":"IT2"},{"1":"T","2":"41927438","3":"1.0302259","4":"inland","_rn_":"IT1"},{"1":"T","2":"42584763","3":"1.0358925","4":"inland","_rn_":"IT3"},{"1":"C","2":"32486368","3":"1.0088472","4":"beach","_rn_":"BC2"},{"1":"C","2":"31254455","3":"1.0095501","4":"beach","_rn_":"BC3"},{"1":"C","2":"33228637","3":"1.0391711","4":"beach","_rn_":"BC1"},{"1":"T","2":"31670175","3":"0.9896106","4":"beach","_rn_":"BT1"},{"1":"T","2":"30157075","3":"0.9586289","4":"beach","_rn_":"BT2"},{"1":"T","2":"34373388","3":"0.9896469","4":"beach","_rn_":"BT3"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["group"],"name":[1],"type":["fct"],"align":["left"]},{"label":["lib.size"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["norm.factors"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["location"],"name":[4],"type":["fct"],"align":["left"]}],"data":[{"1":"C","2":"40607955","3":"0.9620536","4":"inland","_rn_":"IC3"},{"1":"C","2":"35103736","3":"0.9960395","4":"inland","_rn_":"IC1"},{"1":"C","2":"34823466","3":"0.9552281","4":"inland","_rn_":"IC2"},{"1":"T","2":"36387017","3":"1.0302307","4":"inland","_rn_":"IT2"},{"1":"T","2":"41927438","3":"1.0302259","4":"inland","_rn_":"IT1"},{"1":"T","2":"42584763","3":"1.0358925","4":"inland","_rn_":"IT3"},{"1":"C","2":"32486368","3":"1.0088472","4":"beach","_rn_":"BC2"},{"1":"C","2":"31254455","3":"1.0095501","4":"beach","_rn_":"BC3"},{"1":"C","2":"33228637","3":"1.0391711","4":"beach","_rn_":"BC1"},{"1":"T","2":"31670175","3":"0.9896106","4":"beach","_rn_":"BT1"},{"1":"T","2":"30157075","3":"0.9586289","4":"beach","_rn_":"BT2"},{"1":"T","2":"34373388","3":"0.9896469","4":"beach","_rn_":"BT3"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Let us plot the distribution of expression values showing the effect of normalization</p>
@@ -606,7 +598,7 @@ title(main=&quot;Normalized data&quot;,ylab=&quot;Log-cpm&quot;)</code></pre>
 </div>
 <div id="multidimensional-scaling-mds-plots" class="section level2">
 <h2><span class="header-section-number">0.6</span> Multidimensional scaling (MDS) plots</h2>
-<p>By far, one of the most important plots we make when we analyze RNA-Seq data are MDSplots. An MDSplot is a visualization of a principle components analysis, which determines the greatest sources of variation in the data. A principle components analysis is an example of an unsupervised analysis, where we don’t need to specify the groups. If your experiment is well controlled and has worked well, what we hope to see is that the greatest sources of variation in the data are the treatments/groups we are interested in. It is also an incredibly useful tool for quality control and checking for outliers. We can use the <code>plotMDS</code> function to create the MDS plot.</p>
+<p>By far, one of the most important plots we make when we analyze RNA-Seq data are MDSplots. An MDSplot is a visualization of a principle coordinate analysis (PCoA), which determines the greatest sources of variation in the data. A PCoA is an ordination technique which summarizes a multidimensional dataset by projecting it onto a low dimensional space, primarily for visual inspection. The goal is to represent the distances (Bray-Curtis, Jaccard index, or Euclidean) between samples in a low-dimensional 2-D space. When the distance metric is Euclidean, PCoA is equivalent to Principal Components Analysis. If your experiment is well controlled and has worked well, what we hope to see is that the greatest sources of variation in the data are the treatments/groups we are interested in. Consequently, we expect to see biological replicates clustered together because of their similarity expression. MDSplot is also an incredibly useful tool for quality control and checking for outliers. We can use the <code>plotMDS</code> function to create the MDS plot.</p>
 <pre class="r"><code>lcpm &lt;- cpm(dge, log=TRUE)
 
 #assign different colors to the group information
@@ -626,12 +618,12 @@ plotMDS(lcpm, col=col.group) </code></pre>
 <li>What is the second greatest source of variation in the data?</li>
 </ul>
 </blockquote>
-<p>We observe from the figure above that greatest source of variation is the treatment effect (dimension 1). Also, and most importantly, note the separation due to location (dimension 2). This is suggestive that there might be need to account for location effect in the regression model. In other words, we can fit a model that determines the effect of treatment while adjusting for any differences in expression due to the effect of location. This is a type of multivariate or multi-factor analysis, and will be covered in session 2 of the worshop.</p>
-<p>Next, we determine and plot out the proportion of explained variance for each Dimension observed in the MDSplot. We first transpose the data to have variables (genes) as columns:</p>
+<p>We observe from the figure above that greatest source of variation is the treatment effect (dimension 1). Also, and most importantly, note the separation due to location (dimension 2). This is suggestive that there might be need to account for location effect in the regression model. In other words, we can fit a model that determines the effect of treatment while adjusting for any differences in expression due to the effect of location. This is a type of multivariate or multi-factor analysis, and will be covered in session 2 of the workshop.</p>
+<p>Next, we determine and plot out the proportion of explained variance for each dimension observed in the MDSplot by eigenanalysis. We first transpose the data to have variables (genes) as columns:</p>
 <pre class="r"><code>data_for_PCA &lt;- t(dge$counts)
 dim(data_for_PCA)</code></pre>
 <pre><code>## [1]    12 21181</code></pre>
-<p>We then calculate matrix of dissimilarities between samples using the <code>dist</code> function, then calculate the classical multidimensional scaling of the matrix data using the <code>cmdsclale</code> function:</p>
+<p>We then calculate matrix of dissimilarities between samples using the <code>dist</code> function, then calculate the classical multidimensional scaling (PCoA) of the matrix data using the <code>cmdsclale</code> function:</p>
 <pre class="r"><code># Below, &quot;k&quot; is the maximum dimension of the space which the data are to be represented in
 mds &lt;- cmdscale(dist(data_for_PCA), k=3, eig=TRUE)  
 
@@ -647,6 +639,14 @@ barplot(eig_pc,
 <p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
 <p>As expected, dimension 1 accounts for the majority of variance, i.e treatment effect seem to drive the majority of differential expression.</p>
 </div>
+<div id="conclussion" class="section level2">
+<h2><span class="header-section-number">0.7</span> Conclussion</h2>
+<ul>
+<li>Transform and normalize your count data using robust methods.</li>
+<li>Filter out genes that have low expression across a certain number of samples.</li>
+<li>Cluster your samples using methods such as PCA and MDS to determine the main sources of variation in your data.</li>
+</ul>
+</div>
 
 
 
@@ -659,7 +659,7 @@ barplot(eig_pc,
 
 // add bootstrap table styles to pandoc tables
 function bootstrapStylePandocTables() {
-  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
 }
 $(document).ready(function () {
   bootstrapStylePandocTables();
@@ -677,7 +677,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
   $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
+    $(this).parent().toggleClass('nav-tabs-open');
   });
 });
 </script>
