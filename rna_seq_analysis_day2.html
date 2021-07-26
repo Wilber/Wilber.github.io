@@ -19,6 +19,15 @@
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
 <script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
@@ -28,12 +37,16 @@
 <link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
 <script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
-<style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
-  pre:not([class]) {
-    background-color: white;
-  }
-</style>
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
 <script type="text/javascript">
 if (window.hljs) {
   hljs.configure({languages: []});
@@ -46,32 +59,7 @@ if (window.hljs) {
 
 
 
-<style type="text/css">
-h1 {
-  font-size: 34px;
-}
-h1.title {
-  font-size: 38px;
-}
-h2 {
-  font-size: 30px;
-}
-h3 {
-  font-size: 24px;
-}
-h4 {
-  font-size: 18px;
-}
-h5 {
-  font-size: 16px;
-}
-h6 {
-  font-size: 12px;
-}
-.table th:not([align]) {
-  text-align: left;
-}
-</style>
+
 
 
 
@@ -81,10 +69,6 @@ h6 {
   max-width: 940px;
   margin-left: auto;
   margin-right: auto;
-}
-code {
-  color: inherit;
-  background-color: rgba(0, 0, 0, 0.04);
 }
 img {
   max-width:100%;
@@ -101,40 +85,13 @@ button.code-folding-btn:focus {
 summary {
   display: list-item;
 }
+pre code {
+  padding: 0;
+}
 </style>
 
 
 <style type="text/css">
-/* padding for bootstrap navbar */
-body {
-  padding-top: 51px;
-  padding-bottom: 40px;
-}
-/* offset scroll position for anchor links (for fixed navbar)  */
-.section h1 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h2 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h3 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h4 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h5 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
-.section h6 {
-  padding-top: 56px;
-  margin-top: -56px;
-}
 .dropdown-submenu {
   position: relative;
 }
@@ -162,7 +119,7 @@ body {
   margin-right: -10px;
 }
 .dropdown-submenu:hover>a:after {
-  border-left-color: #ffffff;
+  border-left-color: #adb5bd;
 }
 .dropdown-submenu.pull-left {
   float: none;
@@ -174,7 +131,7 @@ body {
 }
 </style>
 
-<script>
+<script type="text/javascript">
 // manage active state of menu based on current page
 $(document).ready(function () {
   // active menu anchor
@@ -185,10 +142,23 @@ $(document).ready(function () {
   var menuAnchor = $('a[href="' + href + '"]');
 
   // mark it active
-  menuAnchor.parent().addClass('active');
+  menuAnchor.tab('show');
 
   // if it's got a parent navbar menu mark it active as well
   menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
 });
 </script>
 
@@ -200,7 +170,6 @@ $(document).ready(function () {
   max-height: 500px;
   min-height: 44px;
   overflow-y: auto;
-  background: white;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
@@ -255,11 +224,11 @@ $(document).ready(function () {
 
 <style type="text/css">
 
-#section-TOC {
+#TOC {
   margin: 25px 0px 20px 0px;
 }
 @media (max-width: 768px) {
-#section-TOC {
+#TOC {
   position: relative;
   width: 100%;
 }
@@ -326,13 +295,13 @@ div.tocify {
 
 
 <!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row-fluid">
-<div class="col-xs-12 col-sm-4 col-md-3">
-<div id="section-TOC" class="tocify">
+<div class="row">
+<div class="col-sm-12 col-md-4 col-lg-3">
+<div id="TOC" class="tocify">
 </div>
 </div>
 
-<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+<div class="toc-content col-sm-12 col-md-8 col-lg-9">
 
 
 
@@ -361,6 +330,9 @@ div.tocify {
 <li>
   <a href="rna_seq_analysis_day2.html">Day 2</a>
 </li>
+<li>
+  <a href="rna_seq_analysis_day3.html">Day 3</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         
@@ -369,7 +341,7 @@ div.tocify {
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-<div class="fluid-row" id="section-header">
+<div id="header">
 
 
 
@@ -387,7 +359,7 @@ code.r{ /* Code block */
     font-size: 14px;
 }
 </style>
-<div id="section-overview" class="section level2">
+<div id="overview" class="section level2">
 <h2><span class="header-section-number">0.1</span> Overview</h2>
 <ul>
 <li>Statistical inference overview</li>
@@ -397,7 +369,7 @@ code.r{ /* Code block */
 <li>Useful graphics</li>
 </ul>
 </div>
-<div id="section-statistical-inference" class="section level2">
+<div id="statistical-inference" class="section level2">
 <h2><span class="header-section-number">0.2</span> Statistical Inference</h2>
 <p>The goal of differential gene expression analysis is to determine if the change in expression — for each gene independently, in different conditions — is statistically significant. To achieve this, we will fit a statistical model to expression data of each gene and perform hypothesis tests. Our goal is to determine if a gene is differentially expressed upon salt treatment, <em><strong>while adjusting for any changes that might arise due to the effect of location (inland and beach).</strong> </em></p>
 <p>The idea of hypothesis testing is that:</p>
@@ -407,7 +379,7 @@ code.r{ /* Code block */
 <p>
 </p></li>
 </ol>
-<div style="text-align: center; margin-top: 5px; margin-bottom: 5px;">
+<div style="text-align: center; margin-top: 5px; margin-bottom: 5px; width:65%; ">
 <p><img src="data.png" /></p>
 </div>
 <p>
@@ -417,25 +389,30 @@ code.r{ /* Code block */
 </ol>
 <p>
 </p>
-<div style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
+<div style="text-align: center; margin-top: 5px; margin-bottom: 5px; width:65%;">
 <p><img src="model.png" /></p>
 </div>
 <p>
 </p>
 <p>A typical analysis involves fitting regression models. These can take the form of:</p>
-<p><span class="math inline">\(Y = \beta_0 + \beta_1 X+ \epsilon\)</span>, where</p>
+<p><span class="math inline">\(Y = \beta_0 + \beta_1 X_1+ \epsilon\)</span>, where</p>
 <ul>
 <li><span class="math inline">\(Y\)</span> denotes normalized expression values for a gene in all conditions</li>
 <li><span class="math inline">\(\beta_0\)</span> coefficient is the intercept, and typically represents the average expression of the baseline (control) group</li>
-<li><span class="math inline">\(\beta_1\)</span> is the treatment effect</li>
+<li><span class="math inline">\(\beta_1\)</span> is the treatment effect, <em>i.e</em> the coefficient (slope term) representing the linear relationship</li>
+<li><span class="math inline">\(X_1\)</span> is the treatment factor</li>
+<li><span class="math inline">\(\epsilon\)</span> is a mean-zero random error term</li>
 </ul>
-<p>Note that in this workshop we fit on a negative binomial model to read counts, hence the need for a <strong>Generalized linear model (GLM)</strong>. GLMs are an extension of classical linear models to non-normally distributed response data.</p>
+<p>We will fit a multiple linear regression model, specifically an additive model, that includes an extra term of location, <span class="math inline">\(X_2\)</span>, since we are interested in changes of expression after adjusting for any changes due to location.</p>
+<p>The additive model will take the form of: <span class="math inline">\(Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \epsilon\)</span></p>
+<p>Note that in this workshop we fit a negative binomial (NB) model to read counts, hence the need for a <strong>Generalized linear model (GLM)</strong>. GLMs are an extension of classical linear models to non-normally distributed response data.</p>
+<p>Why do we use the NB distribution for analysis of RBA-Seq data? * Reads are count based, they can’t be normally distributed * Two distributions for count based data are poisson (which presumes the variance and mean [of expression] are equal; or NB (which does not). The low number of bilogical replocates results in variance not being equal to mean, hence the need for NB distribution. A good estimate of variance for each gene is essential to determine whether the changes are due to chance.</p>
 <ol start="4" style="list-style-type: decimal">
 <li><strong>Use statistics to quantify the difference</strong></li>
 </ol>
 <p>
 </p>
-<div style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
+<div style="text-align: center; margin-top: 5px; margin-bottom: 5px; width:65%;">
 <p><img src="difference.png" /></p>
 </div>
 <p>
@@ -445,15 +422,29 @@ code.r{ /* Code block */
 <li>Correction for multiple hypothesis testing</li>
 </ul>
 </div>
-<div id="section-design-matrix" class="section level2">
+<div id="design-matrix" class="section level2">
 <h2><span class="header-section-number">0.3</span> Design matrix</h2>
 <p>We first create a design matrix for the linear models. A design matrix represents the independent variables/factors that have an influence in the response variable (gene expression), and also the way we have coded the information and the design of the experiment. There are many ways of creating the design matrix, but the most important thing to remember is that the biological question determines how the matrix is created, and subsequently how we frame hypothesis tests. In this analysis we wish to test whether — for each gene — the expression differs significantly between plants treated with salt and water control, after adjusting for differences between land and beach. In statistical terms, this is an additive linear model, and will be reflected in the design matrix. This type of additive model corrects/adjusts for baseline differences between locations.</p>
 <p>Let us first load required packages.</p>
-<pre class="r"><code>library(edgeR) #Main package for DE analysis
-library(tidyverse) #Data wrangling package, includes ggplot2, dplyr, tidy, readr
-library(RColorBrewer) #Colour scheme for plotting
+<pre class="r"><code>library(edgeR) #Main package for DE analysis</code></pre>
+<pre><code>## Loading required package: limma</code></pre>
+<pre class="r"><code>library(tidyverse) #Data wrangling package, includes ggplot2, dplyr, tidy, readr</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
+## ✓ tibble  3.1.1     ✓ dplyr   1.0.6
+## ✓ tidyr   1.1.3     ✓ stringr 1.4.0
+## ✓ readr   1.4.0     ✓ forcats 0.5.1</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(RColorBrewer) #Colour scheme for plotting
 library(Glimma) #Interactive MD plots
 library(gplots)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;gplots&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     lowess</code></pre>
 <p>Then load the original copy of the <code>DGEList</code> object from the previous analysis to the current R environment.</p>
 <pre class="r"><code>dge&lt;-readRDS(&quot;dge_orig.rds&quot;)
 lcpm &lt;- cpm(dge, log=TRUE)</code></pre>
@@ -464,6 +455,10 @@ lcpm &lt;- cpm(dge, log=TRUE)</code></pre>
 <p>Note that for a multivariate model, all combinations of treatments/group should be replicated in the second variable/factor. That is, we should have Control (C) and Treatment (T) samples in <strong>both</strong> inland and beach.</p>
 <p>We create a design matrix using the <code>model.matrix</code> function.</p>
 <pre class="r"><code>group&lt;-as.factor(rep(c(&quot;C&quot;,&quot;T&quot;,&quot;C&quot;,&quot;T&quot;), c(3,3,3,3)))
+
+#make control the reference level
+#group&lt;-relevel(group,&quot;C&quot;)
+
 location&lt;-as.factor(rep(c(&quot;inland&quot;,&quot;beach&quot;),c(6,6)))
 
 #We make &quot;inland&quot; the reference level
@@ -501,19 +496,19 @@ rownames(mod) &lt;- colnames(dge)</code></pre>
 ## 
 ## attr(,&quot;contrasts&quot;)$group
 ## [1] &quot;contr.treatment&quot;</code></pre>
-<p>We see three coefficients, sometimes called “dummy variables or indicator functions”. The last coefficient (coefficient 3, groupT) representing the effect of treatment on gene expression, after adjusting for the location. This is our coefficient of interest.</p>
+<p>We see three coefficients, sometimes called “dummy variables or indicator functions”. The last coefficient (coefficient 3, groupT) representing the effect of treatment on gene expression, after adjusting for differences due to location. This is our coefficient of interest. This coefficient of the indicator variable ‘groupT’ is the difference between the mean gene expression value of the indicated category (groupT = 1, <em>i.e</em> treatment level) and the mean gene expression values for the other category (groupT = 0, <em>i.e</em> control level), at <strong>fixed values</strong> of the other explanatory variable, <em>i.e</em> location.</p>
 <p>Notice how indicator variables take on values of either 0 or 1. For instance, ‘groupT’ takes on a value of 1 if the sample is treated, otherwise 0.</p>
 <p>The ‘Intercept’ coefficient represents the (average) baseline expression at inland location.</p>
 </div>
-<div id="section-estimate-dispersion" class="section level2">
+<div id="estimate-dispersion" class="section level2">
 <h2><span class="header-section-number">0.4</span> Estimate dispersion</h2>
 <p>The number/count of reads <span class="math inline">\(K_g\)</span> for a gene <span class="math inline">\(g\)</span> are commonly modeled with the Poisson distribution <span class="math inline">\(K_g ∼ Pois(λ_g)\)</span>, whose mean and variance are both equal to <span class="math inline">\(λ_g\)</span>. Due to heterogeneity (difference between replicates), the variance is often much larger than the mean, making the Poisson assumption not realistic. A negative binomial distribution — an approximation of the Poisson distribution where the variance is allowed to exceed the mean — is preferred, hence the need to estimate an overdispersion parameter <span class="math inline">\(φ_g\)</span> that arises. The variance of read counts for a gene then becomes <span class="math inline">\(Var(K_g) = λ_g + φ_gλ^2_g\)</span>. We estimate the overdispersion parameter using the <code>estimateDisp</code> function.</p>
 <pre class="r"><code>dge2 &lt;- estimateDisp(dge, design = mod)</code></pre>
 <p>We then plot the biological coefficient of variation (BCV). BCV is the coefficient of variation (CV) with which the (unknown) true abundance of the gene varies between replicate RNA samples. It represents the CV that would remain between biological replicates if sequencing depth could be increased indefinitely. The BCV is the square root of the negative binomial dispersion.</p>
 <pre class="r"><code>plotBCV(dge2)</code></pre>
-<p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="rna_seq_analysis_day2_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 </div>
-<div id="section-model-fitting-hypothesis-testing" class="section level2">
+<div id="model-fitting-hypothesis-testing" class="section level2">
 <h2><span class="header-section-number">0.5</span> Model fitting &amp; Hypothesis testing</h2>
 <p>We fit a negative binomial GLM to the read counts for each gene, using the edgeR <code>glmFit</code> function.</p>
 <pre class="r"><code>  fit &lt;- glmFit(dge2, mod)</code></pre>
@@ -553,7 +548,7 @@ topTags(glf_B_vs_I)[[1]][,7:11]</code></pre>
 <pre class="r"><code>#LRT
 glf_T_vs_C &lt;-glmLRT(fit, coef = 3)</code></pre>
 </div>
-<div id="section-correcting-for-multiple-hypothesis-testing" class="section level2">
+<div id="correcting-for-multiple-hypothesis-testing" class="section level2">
 <h2><span class="header-section-number">0.6</span> Correcting for multiple hypothesis testing</h2>
 <p>Since we are fitting one model for each gene of interest, and therefore performing thousands of tests, we run into an issue where the Type I error is not equal to the significance level of each test. We try to fix this by performing multiple test correction, also known as adjusting P values. See <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6099145/">Jafari &amp; Ansari-Pour., 2018</a> for a review of different methods of adjusting P values.</p>
 <p>Some of the methods for adjusting p values include:</p>
@@ -565,17 +560,28 @@ glf_T_vs_C &lt;-glmLRT(fit, coef = 3)</code></pre>
 <p>Let us first interrogate the top DEGs:</p>
 <pre class="r"><code>topTags(glf_T_vs_C)</code></pre>
 <pre><code>## Coefficient:  groupT 
-##                      Geneid   Chr    Start      End Strand Length     logFC   logCPM        LR        PValue           FDR
-## 9569  Phvul.004G056400.v1.0 Chr04  7396606  7397508      -    903  6.119634 4.370175 1116.0744 1.059813e-244 2.882374e-240
-## 17196 Phvul.007G231800.v1.0 Chr07 47146783 47148189      -   1407  5.119555 6.641357  806.1278 2.510605e-177 3.414046e-173
-## 21686 Phvul.009G106400.v1.0 Chr09 16017975 16023446      +   5472 -2.665181 6.519445  695.4608 2.902632e-153 2.631429e-149
-## 2632  Phvul.001G263200.v1.0 Chr01 51729773 51729982      +    210  5.091628 4.077005  671.6537 4.364981e-148 2.967859e-144
-## 5498  Phvul.002G280400.v1.0 Chr02 44427703 44428818      -   1116  6.250393 2.352673  633.0100 1.107065e-139 6.021769e-136
-## 20898 Phvul.009G027600.v1.0 Chr09  6151941  6152698      +    758  5.665508 5.731779  632.0508 1.789766e-139 8.112711e-136
-## 15887 Phvul.007G100900.v1.0 Chr07 10966196 10970519      -   4324  2.496623 5.403144  609.1785 1.688195e-134 6.559119e-131
-## 20965 Phvul.009G034300.v1.0 Chr09  7372885  7373614      +    730 -4.379391 4.006566  572.7380 1.424735e-126 4.843564e-123
-## 3800  Phvul.002G110600.v1.0 Chr02 22492109 22493173      +   1065  3.899224 2.637592  561.7387 3.518792e-124 1.063340e-120
-## 22302 Phvul.009G168000.v1.0 Chr09 24532274 24533798      +   1525  5.785088 2.247885  528.0753 7.407530e-117 2.014626e-113</code></pre>
+##                      Geneid   Chr    Start      End Strand Length     logFC
+## 9569  Phvul.004G056400.v1.0 Chr04  7396606  7397508      -    903  6.119634
+## 17196 Phvul.007G231800.v1.0 Chr07 47146783 47148189      -   1407  5.119555
+## 21686 Phvul.009G106400.v1.0 Chr09 16017975 16023446      +   5472 -2.665181
+## 2632  Phvul.001G263200.v1.0 Chr01 51729773 51729982      +    210  5.091628
+## 5498  Phvul.002G280400.v1.0 Chr02 44427703 44428818      -   1116  6.250393
+## 20898 Phvul.009G027600.v1.0 Chr09  6151941  6152698      +    758  5.665508
+## 15887 Phvul.007G100900.v1.0 Chr07 10966196 10970519      -   4324  2.496623
+## 20965 Phvul.009G034300.v1.0 Chr09  7372885  7373614      +    730 -4.379391
+## 3800  Phvul.002G110600.v1.0 Chr02 22492109 22493173      +   1065  3.899224
+## 22302 Phvul.009G168000.v1.0 Chr09 24532274 24533798      +   1525  5.785088
+##         logCPM        LR        PValue           FDR
+## 9569  4.370175 1116.0744 1.059813e-244 2.882374e-240
+## 17196 6.641357  806.1278 2.510605e-177 3.414046e-173
+## 21686 6.519445  695.4608 2.902632e-153 2.631429e-149
+## 2632  4.077005  671.6537 4.364981e-148 2.967859e-144
+## 5498  2.352673  633.0100 1.107065e-139 6.021769e-136
+## 20898 5.731779  632.0508 1.789766e-139 8.112711e-136
+## 15887 5.403144  609.1785 1.688195e-134 6.559119e-131
+## 20965 4.006566  572.7380 1.424735e-126 4.843564e-123
+## 3800  2.637592  561.7387 3.518792e-124 1.063340e-120
+## 22302 2.247885  528.0753 7.407530e-117 2.014626e-113</code></pre>
 <p>We then obtain all the DEGs with adjusted P value cutoff of 0.1</p>
 <pre class="r"><code>pvals_T_vs_C&lt;-topTags(glf_T_vs_C, n = &quot;Inf&quot;, adjust.method = &quot;BH&quot;, sort.by = &quot;PValue&quot;, p.value = 0.1 )
 
@@ -610,13 +616,13 @@ pvals_T_vs_C&lt;-pvals_T_vs_C[[1]] </code></pre>
   </script>
 </div>
 <blockquote>
-<p>Learning Check:</p>
+<p><strong>Learning Check!</strong></p>
 <ul>
 <li>How many genes are DE with FDR &lt;=0.1 using Bonferroni method? Which of the two methods (BH Vs Bonferroni) seem to be more stringent?</li>
 </ul>
 </blockquote>
 </div>
-<div id="section-useful-graphical-representations-of-differential-expression-results" class="section level2">
+<div id="useful-graphical-representations-of-differential-expression-results" class="section level2">
 <h2><span class="header-section-number">0.7</span> Useful graphical representations of differential expression results</h2>
 <p>Get number of up and down regulated genes:</p>
 <pre class="r"><code>dt&lt;-decideTests(glf_T_vs_C, adjust.method = &quot;BH&quot;, p.value = 0.1)
@@ -651,7 +657,7 @@ head(sign.dat)</code></pre>
     axis.text.x = element_text(size = 14), 
     axis.text.y = element_text(size = 14)
   )</code></pre>
-<p><img src="rna_seq_analysis_files/figure-html/scatter.png" width="672" /></p>
+<p><img src="rna_seq_analysis_day2_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
 <p>We can create an interactive MD plot using the <code>glmMDplot</code> function from <code>Glimma</code> package:</p>
 <pre class="r"><code>glMDPlot(glf_T_vs_C  , coef=3, status=dt, #main=colnames(glf_Inland_T_vs_Inland_C)[1],
          side.main=&quot;Geneid&quot;, counts=lcpm, groups=group, launch=TRUE)</code></pre>
@@ -664,10 +670,10 @@ mycol &lt;- colorpanel(1000,&quot;blue&quot;,&quot;white&quot;,&quot;red&quot;)
 heatmap.2(lcpm[i,], scale=&quot;row&quot;,
           labRow=dge$genes$Geneid[i], labCol=rownames(dge$samples),
           col=mycol, trace=&quot;none&quot;, density.info=&quot;none&quot;, dendrogram=&quot;column&quot;)</code></pre>
-<p><img src="rna_seq_analysis_files/figure-html/heatmap.png" width="672" /></p>
+<p><img src="rna_seq_analysis_day2_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
 <p>As expected, we observe two main clusters, wherein samples are group based on on treatment and control. Additionally, all biological replicates are clustered together.</p>
 </div>
-<div id="section-conclussion" class="section level2">
+<div id="conclussion" class="section level2">
 <h2><span class="header-section-number">0.8</span> Conclussion</h2>
 <ul>
 <li>Think about the study design and the data analysis approach before executing the experiment</li>
@@ -687,7 +693,7 @@ heatmap.2(lcpm[i,], scale=&quot;row&quot;,
 
 // add bootstrap table styles to pandoc tables
 function bootstrapStylePandocTables() {
-  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
 }
 $(document).ready(function () {
   bootstrapStylePandocTables();
@@ -700,12 +706,12 @@ $(document).ready(function () {
 
 <script>
 $(document).ready(function () {
-  window.buildTabsets("section-TOC");
+  window.buildTabsets("TOC");
 });
 
 $(document).ready(function () {
   $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
+    $(this).parent().toggleClass('nav-tabs-open');
   });
 });
 </script>
@@ -735,7 +741,7 @@ $(document).ready(function ()  {
     options.smoothScroll = true;
 
     // tocify
-    var toc = $("#section-TOC").tocify(options).data("toc-tocify");
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
 });
 </script>
 
