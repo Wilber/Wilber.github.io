@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>RNA-Seq Data Analysis: Interact with your data!</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-sm-12 col-md-4 col-lg-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-sm-12 col-md-8 col-lg-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">RNA-Seq Data Analysis at OSC</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="introR.html">Intro to R</a>
+</li>
+<li>
+  <a href="rna_seq_analysis.html">Day 1</a>
+</li>
+<li>
+  <a href="rna_seq_analysis_day2.html">Day 2</a>
+</li>
+<li>
+  <a href="rna_seq_analysis_day3.html">Day 3</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">RNA-Seq Data Analysis: Interact with your data!</h1>
+
+</div>
+
+
+<style type="text/css">
+body{ /* Normal  */
+      font-size: 16px;
+  }
+
+code.r{ /* Code block */
+    font-size: 14px;
+}
+</style>
+<div id="overview" class="section level2">
+<h2><span class="header-section-number">0.1</span> Overview</h2>
+<ul>
+<li>Review the study design, and perform a 2 X 2 factorial design analysis</li>
+</ul>
+</div>
+<div id="review-of-the-study-design" class="section level2">
+<h2><span class="header-section-number">0.2</span> Review of the study design</h2>
+<p>A closer review of the original study by <a href="https://www.nature.com/articles/sdata2018290">Zhang et al., 2018</a> reveals that plants were not planted at the beach or inland location, rather there are two plant genotypes (strains) — one that’s adapted to saline environment (beach genotype) and another one that’s not (inland genotpe, or wild type). Experimental intervention involving treatment with salt was performed on both genotypes, resulting in a 2 X 2 factorial study design with factors being genotype (formerly location) and treatment.</p>
+<p>Let us first load required packages.</p>
+<pre class="r"><code>library(edgeR) #Main package for DE analysis</code></pre>
+<pre><code>## Loading required package: limma</code></pre>
+<pre class="r"><code>library(tidyverse) #Data wrangling package, includes ggplot2, dplyr, tidy, readr</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
+## ✓ tibble  3.1.1     ✓ dplyr   1.0.6
+## ✓ tidyr   1.1.3     ✓ stringr 1.4.0
+## ✓ readr   1.4.0     ✓ forcats 0.5.1</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(RColorBrewer) #Colour scheme for plotting
+library(Glimma) #Interactive MD plots
+library(gplots)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;gplots&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     lowess</code></pre>
+<pre class="r"><code>library(kableExtra)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;kableExtra&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     group_rows</code></pre>
+<pre class="r"><code>library(magick)</code></pre>
+<pre><code>## Linking to ImageMagick 6.9.12.3
+## Enabled features: cairo, fontconfig, freetype, heic, lcms, pango, raw, rsvg, webp
+## Disabled features: fftw, ghostscript, x11</code></pre>
+<p>Then load the original copy of the <code>DGEList</code> object from the previous analysis to the current R environment.</p>
+<pre class="r"><code>dge&lt;-readRDS(&quot;dge_orig.rds&quot;)
+lcpm &lt;- cpm(dge, log=TRUE)</code></pre>
+<p>If you do not have the “dge_orig.rds” in your local directory from previous analysis, download the object from a public repository as shown below (remember to remove the comments #):</p>
+<pre class="r"><code>#download.file(url=&quot;https://ndownloader.figshare.com/files/24103316&quot;, destfile = &quot;test.rds&quot;)
+#dge&lt;-readRDS(&quot;dge_orig.rds&quot;)
+#lcpm &lt;- cpm(dge, log=TRUE)</code></pre>
+<p>Below is a 2 X 2 factorial table.</p>
+<pre class="r"><code>group&lt;-as.data.frame(rep(c(&quot;C&quot;,&quot;T&quot;,&quot;C&quot;,&quot;T&quot;), c(3,3,3,3)))
+location&lt;-as.data.frame(rep(c(&quot;inland&quot;,&quot;beach&quot;),c(6,6)))
+table&lt;-cbind(colnames(dge),location,group)
+colnames(table)&lt;-c(&quot;Sample&quot;,&quot;Genotype&quot;,&quot;Treatment&quot;)
+#knitr::kable(table, &quot;rst&quot;)
+knitr::kable(table, format = &quot;html&quot;,  
+      caption = &quot;Table 1: A 2 X 2 factorial table&quot;,
+      digits = c(0, 0, 2, 3), align = &quot;ccrr&quot;) %&gt;%
+    kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<caption>
+Table 1: A 2 X 2 factorial table
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Sample
+</th>
+<th style="text-align:center;">
+Genotype
+</th>
+<th style="text-align:right;">
+Treatment
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+IC3
+</td>
+<td style="text-align:center;">
+inland
+</td>
+<td style="text-align:right;">
+C
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+IC1
+</td>
+<td style="text-align:center;">
+inland
+</td>
+<td style="text-align:right;">
+C
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+IC2
+</td>
+<td style="text-align:center;">
+inland
+</td>
+<td style="text-align:right;">
+C
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+IT2
+</td>
+<td style="text-align:center;">
+inland
+</td>
+<td style="text-align:right;">
+T
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+IT1
+</td>
+<td style="text-align:center;">
+inland
+</td>
+<td style="text-align:right;">
+T
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+IT3
+</td>
+<td style="text-align:center;">
+inland
+</td>
+<td style="text-align:right;">
+T
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+BC2
+</td>
+<td style="text-align:center;">
+beach
+</td>
+<td style="text-align:right;">
+C
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+BC3
+</td>
+<td style="text-align:center;">
+beach
+</td>
+<td style="text-align:right;">
+C
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+BC1
+</td>
+<td style="text-align:center;">
+beach
+</td>
+<td style="text-align:right;">
+C
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+BT1
+</td>
+<td style="text-align:center;">
+beach
+</td>
+<td style="text-align:right;">
+T
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+BT2
+</td>
+<td style="text-align:center;">
+beach
+</td>
+<td style="text-align:right;">
+T
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+BT3
+</td>
+<td style="text-align:center;">
+beach
+</td>
+<td style="text-align:right;">
+T
+</td>
+</tr>
+</tbody>
+</table>
+<p>Note that for a multivariate model, all combinations of treatments/group should be replicated in the second variable/factor</p>
+<p>In Day 2, we tested whether — for each gene — the expression differs significantly between plants treated with salt and water control, after adjusting for differences between land and beach. In statistical terms, this is an additive linear model, and will be reflected in the design matrix. This type of additive model corrects/adjusts for baseline differences between locations.</p>
+<p>However, we are not going to treat location factor as a variable to hold constant, but we test the following:</p>
+<ol style="list-style-type: decimal">
+<li>which genes respond to salt treatment in inland (wild-type) plants</li>
+<li>which genes respond to salt treatment in beach genotype (mutant) plants, and</li>
+<li>which genes respond <strong><em>differently</em></strong> in mutant compared to wild-type plants. This is the interaction term, <em>i.e</em> the environment—genotype interaction.</li>
+</ol>
+</div>
+<div id="design-matrix" class="section level2">
+<h2><span class="header-section-number">0.3</span> Design matrix</h2>
+<p>There are several ways to setup a design matrix. Unlike Day 2 analysis that included an intercept (coefficient for baseline expression for wild-type), we will create a design matrix without the intercept. Additionally, we will take a simple, multi-purpose approach for the multi-factor analysis by combining all the experimental factors into one combined factor: <strong><em>Group</em></strong> factor.</p>
+<pre class="r"><code>group&lt;-as.factor(rep(c(&quot;C&quot;,&quot;T&quot;,&quot;C&quot;,&quot;T&quot;), c(3,3,3,3)))
+#location&lt;-as.factor(rep(c(&quot;inland&quot;,&quot;beach&quot;),c(6,6)))
+genotype&lt;-as.factor(rep(c(&quot;inland&quot;,&quot;beach&quot;),c(6,6)))
+
+#We make &quot;inland&quot; genotype the reference level
+genotype&lt;-relevel(genotype,&quot;inland&quot;)
+
+#Create a new Group factor: 
+Group &lt;- factor(paste(group,genotype,sep=&quot;.&quot;))
+
+#Create the design matrix, WITHOUT intercept
+mod &lt;- model.matrix(~0 + Group)
+
+#Rename rows of the model to correspond to sample names
+rownames(mod) &lt;- colnames(dge)</code></pre>
+<p>Let us take a look at the model:</p>
+<pre class="r"><code>mod</code></pre>
+<pre><code>##     GroupC.beach GroupC.inland GroupT.beach GroupT.inland
+## IC3            0             1            0             0
+## IC1            0             1            0             0
+## IC2            0             1            0             0
+## IT2            0             0            0             1
+## IT1            0             0            0             1
+## IT3            0             0            0             1
+## BC2            1             0            0             0
+## BC3            1             0            0             0
+## BC1            1             0            0             0
+## BT1            0             0            1             0
+## BT2            0             0            1             0
+## BT3            0             0            1             0
+## attr(,&quot;assign&quot;)
+## [1] 1 1 1 1
+## attr(,&quot;contrasts&quot;)
+## attr(,&quot;contrasts&quot;)$Group
+## [1] &quot;contr.treatment&quot;</code></pre>
+<p>We use this simple group-mean parametrization instead of a classic factorial model because it allows contrasts between the groups to be extracted in a simple and transparent way. For example, obtaining DE genes upon salt treatment in the WT genotype involves simply comparing coefficients 2 and 4. However, we first estimate dispersion parameters and fit a NB GLM before performing these comparisons.</p>
+</div>
+<div id="estimate-dispersion" class="section level2">
+<h2><span class="header-section-number">0.4</span> Estimate dispersion</h2>
+<p>We estimate the overdispersion parameter using the <code>estimateDisp</code> function.</p>
+<pre class="r"><code>dge2 &lt;- estimateDisp(dge, design = mod)</code></pre>
+<p>We then plot the biological coefficient of variation (BCV). BCV is the coefficient of variation (CV) with which the (unknown) true abundance of the gene varies between replicate RNA samples. It represents the CV that would remain between biological replicates if sequencing depth could be increased indefinitely. The BCV is the square root of the negative binomial dispersion.</p>
+<pre class="r"><code>#plotBCV(dge2)</code></pre>
+</div>
+<div id="model-fitting-hypothesis-testing" class="section level2">
+<h2><span class="header-section-number">0.5</span> Model fitting &amp; Hypothesis testing</h2>
+<p>We fit a negative binomial GLM — using gene-specific dispersions estimated above — to the read counts for each gene.</p>
+<pre class="r"><code>  fit &lt;- glmFit(dge2, mod)</code></pre>
+<p>Likelihood ratio statistics are computed for the comparison of interest. We will use contrasts to specify coefficients of interest.</p>
+<div id="de-expression-in-wt-plants" class="section level3">
+<h3><span class="header-section-number">0.5.1</span> DE expression in WT plants</h3>
+<ol style="list-style-type: decimal">
+<li>Which genes respond to salt treatment in inland (wild-type) plants: the <em>contrast</em> argument below specifies that the second and the fourth groups, <em>i.e Coefficient 2 and 4</em>, are to be compared.</li>
+</ol>
+<pre class="r"><code>#LRT
+glf_T_vs_C_inland &lt;-glmLRT(fit, contrast = c(0,-1,0,1))
+# Collate results for the most significant genes:
+topTags(glf_T_vs_C_inland)</code></pre>
+<pre><code>## Coefficient:  -1*GroupC.inland 1*GroupT.inland 
+##                      Geneid   Chr    Start      End Strand Length     logFC
+## 9569  Phvul.004G056400.v1.0 Chr04  7396606  7397508      -    903  6.288381
+## 2632  Phvul.001G263200.v1.0 Chr01 51729773 51729982      +    210  4.600811
+## 17196 Phvul.007G231800.v1.0 Chr07 47146783 47148189      -   1407  5.346674
+## 673   Phvul.001G067300.v1.0 Chr01  8642080  8646688      -   4609  4.439986
+## 754   Phvul.001G075400.v1.0 Chr01 10506529 10509049      -   2521  3.176485
+## 8122  Phvul.003G209000.v1.0 Chr03 42364440 42365315      -    876  5.992903
+## 21686 Phvul.009G106400.v1.0 Chr09 16017975 16023446      +   5472 -2.654965
+## 6999  Phvul.003G096700.v1.0 Chr03 22229474 22230485      -   1012  3.639795
+## 20965 Phvul.009G034300.v1.0 Chr09  7372885  7373614      +    730 -4.588473
+## 13407 Phvul.006G075000.v1.0 Chr06 19419104 19420608      -   1505  4.063590
+##         logCPM       LR        PValue           FDR
+## 9569  4.370261 658.3926 3.341231e-145 9.087147e-141
+## 2632  4.076034 533.1195 5.919579e-118 8.049739e-114
+## 17196 6.641455 531.7944 1.149651e-117 1.042235e-113
+## 673   6.785791 390.4110  6.736038e-87  4.580000e-83
+## 754   6.161659 381.2144  6.769824e-85  3.682378e-81
+## 8122  4.902467 379.2600  1.803356e-84  8.174312e-81
+## 21686 6.519412 365.8706  1.483550e-81  5.764014e-78
+## 6999  3.880029 360.3447  2.368732e-80  8.052801e-77
+## 20965 4.006352 359.1555  4.300010e-80  1.299415e-76
+## 13407 6.497144 353.8626  6.109611e-79  1.661631e-75</code></pre>
+<p>Next, we correct for multiple hypothesis testing, using Benjamini-Hochberg correction, and obtain DE genes with an adjusted P value cut-off or 0.1</p>
+<pre class="r"><code>pvals_T_vs_C_inland&lt;-topTags(glf_T_vs_C_inland, n = &quot;Inf&quot;, adjust.method = &quot;BH&quot;, sort.by = &quot;PValue&quot;, p.value = 0.1 )
+
+#subset to get the dataframe from the edgeR object
+pvals_T_vs_C_inland&lt;-pvals_T_vs_C_inland[[1]]</code></pre>
+<p>We now obtain the total number of DEGs with FDR cutoff of 0.1</p>
+<pre class="r"><code>pvals_T_vs_C_inland %&gt;%
+  filter(FDR &lt;= 0.1) %&gt;%
+  count() </code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["n"],"name":[1],"type":["int"],"align":["right"]}],"data":[{"1":"8225"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<blockquote>
+<p><strong>Learning Check!</strong></p>
+<ul>
+<li>How many genes are DE with FDR &lt;=0.1 (using Bonferroni method) in the beach mutant strain? Which strain has the largest number of DE genes?</li>
+</ul>
+</blockquote>
+</div>
+<div id="de-in-mutant-plants" class="section level3">
+<h3><span class="header-section-number">0.5.2</span> DE in mutant plants</h3>
+<ol start="2" style="list-style-type: decimal">
+<li>Which genes respond to salt treatment in beach (mutant) genotype plants: <em>Coefficient 1 Vs 3</em></li>
+</ol>
+<pre class="r"><code>#LRT
+glf_T_vs_C_beach &lt;-glmLRT(fit, contrast = c(-1,0,1,0))
+
+# Collate results for the most significant genes:
+pvals_T_vs_C_beach&lt;-topTags(glf_T_vs_C_beach, n = &quot;Inf&quot;, adjust.method = &quot;BH&quot;, sort.by = &quot;PValue&quot;, p.value = 0.1 )
+pvals_T_vs_C_beach&lt;-pvals_T_vs_C_beach[[1]]
+pvals_T_vs_C_beach %&gt;%
+  filter(FDR &lt;= 0.1) %&gt;%
+  count() </code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["n"],"name":[1],"type":["int"],"align":["right"]}],"data":[{"1":"11727"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div id="interaction-term" class="section level3">
+<h3><span class="header-section-number">0.5.3</span> Interaction Term</h3>
+<ol start="3" style="list-style-type: decimal">
+<li>Which genes respond <em><strong>differently</strong></em> in mutant compared to wild-type plants. This is the interaction term, <em>i.e</em> the environment—genotype interaction. These are genes for whom treatment does not present the same effect in the two genotypes.</li>
+</ol>
+<p>Traditionally, an interaction model will take the form of:</p>
+<p><span class="math inline">\(Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_1*X_2 + \epsilon\)</span></p>
+<p>Unlike an additive model without interaction term, the effect of treatment <span class="math inline">\(X_1\)</span> on expression <span class="math inline">\(Y\)</span> is no longer constant since changing genotype <span class="math inline">\(X_2\)</span> will change the impact of treatment <span class="math inline">\(X_1\)</span> on <span class="math inline">\(Y\)</span>, hence the treatment–genotpye interaction.</p>
+<p>We create a factorial model as shown below:</p>
+<pre class="r"><code>mod&lt;-model.matrix(~ genotype + group + genotype:group)
+rownames(mod) &lt;- colnames(dge)
+mod</code></pre>
+<pre><code>##     (Intercept) genotypebeach groupT genotypebeach:groupT
+## IC3           1             0      0                    0
+## IC1           1             0      0                    0
+## IC2           1             0      0                    0
+## IT2           1             0      1                    0
+## IT1           1             0      1                    0
+## IT3           1             0      1                    0
+## BC2           1             1      0                    0
+## BC3           1             1      0                    0
+## BC1           1             1      0                    0
+## BT1           1             1      1                    1
+## BT2           1             1      1                    1
+## BT3           1             1      1                    1
+## attr(,&quot;assign&quot;)
+## [1] 0 1 2 3
+## attr(,&quot;contrasts&quot;)
+## attr(,&quot;contrasts&quot;)$genotype
+## [1] &quot;contr.treatment&quot;
+## 
+## attr(,&quot;contrasts&quot;)$group
+## [1] &quot;contr.treatment&quot;</code></pre>
+<p>Interaction terms are not routinely included in regression models. Inclusion is indicated in three situations:</p>
+<ol style="list-style-type: decimal">
+<li>when a question of interest pertains to interaction</li>
+<li>when good reason exist to suspect interaction</li>
+<li>when interactions are proposed as a more general model for the purpose of examining the goodness of fit of a model without interaction.</li>
+</ol>
+<p>Note that our factorial formula with an interaction term is primarily useful as a way to conduct an overall test for interaction, since in most cases the generated coefficients are not of scientific interest.</p>
+<p>Coefficients in the factorial model above are</p>
+<pre class="r"><code>colnames(mod)</code></pre>
+<pre><code>## [1] &quot;(Intercept)&quot;          &quot;genotypebeach&quot;        &quot;groupT&quot;              
+## [4] &quot;genotypebeach:groupT&quot;</code></pre>
+<p>Next, we need to perform a (gene-wise) LRT to determine whether the coefficient for the interaction term is statistically significant.</p>
+<blockquote>
+<p><strong>Learning Check!</strong></p>
+<ul>
+<li>What are the two steps that we need to perform before we perform the LRT?</li>
+</ul>
+</blockquote>
+<p>Estimate dispersion:</p>
+<pre class="r"><code>dge2 &lt;- estimateDisp(dge, design = mod)</code></pre>
+<p>We fit a negative binomial GLM — using gene-specific dispersion estimated above — to the read counts for each gene.</p>
+<pre class="r"><code>fit &lt;- glmFit(dge2, mod)</code></pre>
+<p>Next, we perform LRT. Note that we specify coefficient number 4 below.</p>
+<pre class="r"><code>#LRT
+glf_int &lt;-glmLRT(fit, coef = 4)
+
+# Collate results for the most significant genes:
+pvals_int&lt;-topTags(glf_int, n = &quot;Inf&quot;, adjust.method = &quot;BH&quot;, sort.by = &quot;PValue&quot;, p.value = 0.1 )
+pvals_int&lt;-pvals_int[[1]]
+pvals_int %&gt;%
+  filter(FDR &lt;= 0.1) %&gt;%
+  count() </code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["n"],"name":[1],"type":["int"],"align":["right"]}],"data":[{"1":"4965"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Interactive plot to obseve changes in gene expression:</p>
+<pre class="r"><code>dt&lt;-decideTests(glf_int, adjust.method = &quot;BH&quot;, p.value = 0.1)
+glMDPlot(glf_int  , coef=4, status=dt, #main=colnames(glf_Inland_T_vs_Inland_C)[1],
+         side.main=&quot;Geneid&quot;, counts=lcpm, groups=group, launch=TRUE)</code></pre>
+<p>Interrogating DE genes, we observe a separate lines model that is associated with an interaction term! If there was no interaction, then the ‘spread’ of expression values in the <em>C</em> group would be similar to the spread in the <em>T</em> group, <em>i.e</em> we would observe two parallel lines for the parallel lines model!</p>
+</div>
+</div>
+<div id="review-of-linear-regression-models" class="section level2">
+<h2><span class="header-section-number">0.6</span> Review of linear regression models</h2>
+<p>To illustrate different regression models for separate lines (interaction), parallel lines (additive model), and equal lines (simple linear regression) model, we will use data from a study that set out to determine the effect of <em>light intensity</em> and <em>timing</em> of light on the number of flowers a meadowfoam plant produces. The small plant is used to create seed oil. Data from this study is found in the <code>R</code> package <strong>Sleuth3</strong> (<a href="https://rdrr.io/cran/Sleuth3/" class="uri">https://rdrr.io/cran/Sleuth3/</a>).</p>
+<pre class="r"><code>library(Sleuth3)
+case0901 = transform(case0901, Time = factor(ifelse(case0901$Time &gt; 1, &quot;Early&quot;, &quot;Late&quot;)))
+head(case0901)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Flowers"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["Time"],"name":[2],"type":["fct"],"align":["left"]},{"label":["Intensity"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"62.3","2":"Late","3":"150","_rn_":"1"},{"1":"77.4","2":"Late","3":"150","_rn_":"2"},{"1":"55.3","2":"Late","3":"300","_rn_":"3"},{"1":"54.2","2":"Late","3":"300","_rn_":"4"},{"1":"49.6","2":"Late","3":"450","_rn_":"5"},{"1":"61.9","2":"Late","3":"450","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<div id="an-equal-lines-model" class="section level3">
+<h3><span class="header-section-number">0.6.1</span> An equal lines model</h3>
+<pre class="r"><code>#create the model
+lm = lm(Flowers ~ Intensity, data=case0901)
+summary(lm)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Flowers ~ Intensity, data = case0901)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -15.7314  -7.8052   0.0186   6.1857  13.2686 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 77.385000   4.161186  18.597 6.06e-15 ***
+## Intensity   -0.040471   0.007123  -5.682 1.03e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 8.94 on 22 degrees of freedom
+## Multiple R-squared:  0.5947, Adjusted R-squared:  0.5763 
+## F-statistic: 32.28 on 1 and 22 DF,  p-value: 1.03e-05</code></pre>
+<pre class="r"><code>ggplot(case0901, aes(x = Intensity, y=Flowers)) +
+    #  geom_point(alpha=0.4) + 
+    geom_point() + geom_smooth(method = &quot;lm&quot;, se = FALSE, mapping=aes(y=predict(lm,case0901))) + 
+    scale_colour_manual(values=c(&quot;blue&quot;,&quot;red&quot;)) + 
+    labs(x = &quot;Light intensity&quot;, y = &quot;Average # of flowers&quot;) +
+    ggtitle(&quot;Flowers ~ Intensity&quot;) + 
+    theme(legend.position = c(0.9, 0.9), legend.title = element_blank()) +
+    theme(
+        axis.title.x = element_text(size=14),
+        axis.title.y = element_text(size=14), 
+        axis.text.x = element_text(size = 14), 
+        axis.text.y = element_text(size = 14)
+    )</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="rna_seq_analysis_day3_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+</div>
+<div id="a-parallel-lines-model" class="section level3">
+<h3><span class="header-section-number">0.6.2</span> A parallel lines model</h3>
+<pre class="r"><code>#create a multiple regression model, without interaction term
+lm = lm(Flowers ~ Intensity + Time, data=case0901)
+summary(lm)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Flowers ~ Intensity + Time, data = case0901)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -9.652 -4.139 -1.558  5.632 12.165 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  83.464167   3.273772  25.495  &lt; 2e-16 ***
+## Intensity    -0.040471   0.005132  -7.886 1.04e-07 ***
+## TimeLate    -12.158333   2.629557  -4.624 0.000146 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 6.441 on 21 degrees of freedom
+## Multiple R-squared:  0.7992, Adjusted R-squared:   0.78 
+## F-statistic: 41.78 on 2 and 21 DF,  p-value: 4.786e-08</code></pre>
+<pre class="r"><code>ggplot(case0901, aes(x = Intensity, y=Flowers,col=Time)) +
+    #  geom_point(alpha=0.4) + 
+    geom_point() + geom_smooth(method = &quot;lm&quot;, se = FALSE, mapping=aes(y=predict(lm,case0901))) + 
+    #scale_colour_manual(values=c(&quot;blue&quot;,&quot;red&quot;)) + 
+    labs(x = &quot;Light intensity&quot;, y = &quot;Average # of flowers&quot;) +
+  ggtitle(&quot;Flowers ~ Intensity + Time&quot;) + 
+    theme(legend.position = c(0.9, 0.9), legend.title = element_blank()) +
+    theme(
+        axis.title.x = element_text(size=14),
+        axis.title.y = element_text(size=14), 
+        axis.text.x = element_text(size = 14), 
+        axis.text.y = element_text(size = 14)
+    )</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="rna_seq_analysis_day3_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
+<p>Note that both light intensity and time have a significant effect on the number of flowers. Additionally, it’s important to note that the two lines in the figure above <strong>do not</strong> represent regression model. A regression model for two variables would be a plane (a 2-d model).</p>
+</div>
+<div id="a-separate-lines-model" class="section level3">
+<h3><span class="header-section-number">0.6.3</span> A separate lines model</h3>
+<pre class="r"><code>#create a multiple regression model, without interaction term
+lm = lm(Flowers ~ Intensity + Time + Intensity*Time, data=case0901)
+summary(lm)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Flowers ~ Intensity + Time + Intensity * Time, data = case0901)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -9.516 -4.276 -1.422  5.473 11.938 
+## 
+## Coefficients:
+##                      Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)         83.146667   4.343305  19.144 2.49e-14 ***
+## Intensity           -0.039867   0.007435  -5.362 3.01e-05 ***
+## TimeLate           -11.523333   6.142360  -1.876   0.0753 .  
+## Intensity:TimeLate  -0.001210   0.010515  -0.115   0.9096    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 6.598 on 20 degrees of freedom
+## Multiple R-squared:  0.7993, Adjusted R-squared:  0.7692 
+## F-statistic: 26.55 on 3 and 20 DF,  p-value: 3.549e-07</code></pre>
+<pre class="r"><code>ggplot(case0901, aes(x = Intensity, y=Flowers,col=Time)) +
+    #  geom_point(alpha=0.4) + 
+    geom_point() + geom_smooth(method = &quot;lm&quot;, se = FALSE, mapping=aes(y=predict(lm,case0901))) + 
+    #scale_colour_manual(values=c(&quot;blue&quot;,&quot;red&quot;)) + 
+    labs(x = &quot;Light intensity&quot;, y = &quot;Average # of flowers&quot;) +
+  ggtitle(&quot;Flowers ~ Intensity + Time + Intensity * Time&quot;) + 
+    theme(legend.position = c(0.9, 0.9), legend.title = element_blank()) +
+    theme(
+        axis.title.x = element_text(size=14),
+        axis.title.y = element_text(size=14), 
+        axis.text.x = element_text(size = 14), 
+        axis.text.y = element_text(size = 14)
+    )</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="rna_seq_analysis_day3_files/figure-html/unnamed-chunk-24-1.png" width="672" /></p>
+<p>The coefficient for interaction term is almost Zero! Probably no need to include interaction term in the model.</p>
+<p>Let us consider a data set that has a significant interaction term: a data set called, Melanoma, which is found in the package, MASS. This is a data set of 205 patients in Denmark with malignant melanoma.</p>
+<pre class="r"><code># Load package MASS
+library(MASS)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;MASS&#39;</code></pre>
+<pre><code>## The following object is masked _by_ &#39;.GlobalEnv&#39;:
+## 
+##     genotype</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     select</code></pre>
+<pre class="r"><code>#head(Melanoma)
+Melanoma$sex[Melanoma$sex == &quot;1&quot;] &lt;- &quot;male&quot;
+Melanoma$sex[Melanoma$sex == &quot;0&quot;] &lt;- &quot;female&quot;
+head(Melanoma)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["time"],"name":[1],"type":["int"],"align":["right"]},{"label":["status"],"name":[2],"type":["int"],"align":["right"]},{"label":["sex"],"name":[3],"type":["chr"],"align":["left"]},{"label":["age"],"name":[4],"type":["int"],"align":["right"]},{"label":["year"],"name":[5],"type":["int"],"align":["right"]},{"label":["thickness"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["ulcer"],"name":[7],"type":["int"],"align":["right"]}],"data":[{"1":"10","2":"3","3":"male","4":"76","5":"1972","6":"6.76","7":"1","_rn_":"1"},{"1":"30","2":"3","3":"male","4":"56","5":"1968","6":"0.65","7":"0","_rn_":"2"},{"1":"35","2":"2","3":"male","4":"41","5":"1977","6":"1.34","7":"0","_rn_":"3"},{"1":"99","2":"3","3":"female","4":"71","5":"1968","6":"2.90","7":"0","_rn_":"4"},{"1":"185","2":"1","3":"male","4":"52","5":"1965","6":"12.08","7":"1","_rn_":"5"},{"1":"204","2":"1","3":"male","4":"28","5":"1971","6":"4.84","7":"1","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>We will focus on two explanatory variables: Age and Sex, and their effect on survival (time). A separate lines models would look like:</p>
+<pre class="r"><code>#create a multiple regression model, without interaction term
+lm = lm(time ~ age + sex + age*sex, data=Melanoma)
+summary(lm)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = time ~ age + sex + age * sex, data = Melanoma)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -2809.26  -658.60   -74.04   625.96  3002.37 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  3649.325    318.696  11.451  &lt; 2e-16 ***
+## age           -26.505      5.903  -4.490  1.2e-05 ***
+## sexmale     -1129.682    500.841  -2.256   0.0252 *  
+## age:sexmale    15.856      9.018   1.758   0.0802 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 1060 on 201 degrees of freedom
+## Multiple R-squared:  0.1204, Adjusted R-squared:  0.1072 
+## F-statistic: 9.168 on 3 and 201 DF,  p-value: 1.03e-05</code></pre>
+<pre class="r"><code>ggplot(Melanoma, aes(x = age, y=time,col=sex)) +
+    #  geom_point(alpha=0.4) + 
+    geom_point() + geom_smooth(method = &quot;lm&quot;, se = FALSE, mapping=aes(y=predict(lm,Melanoma))) + 
+    #scale_colour_manual(values=c(&quot;blue&quot;,&quot;red&quot;)) + 
+    labs(x = &quot;Age (years)&quot;, y = &quot;Survival Time (days)&quot;) +
+  ggtitle(&quot;Time ~ Age + Sex + Age * Sex&quot;) + 
+    theme(legend.position = c(0.9, 0.9), legend.title = element_blank()) +
+    theme(
+        axis.title.x = element_text(size=14),
+        axis.title.y = element_text(size=14), 
+        axis.text.x = element_text(size = 14), 
+        axis.text.y = element_text(size = 14)
+    )</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="rna_seq_analysis_day3_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
+<p>Notice how the interaction term is marginally significant.</p>
+<p>Going back to our RNA-Seq data set, each of the DE genes identified in the interaction model (genes responding due to a genotype AND environment interaction), we expect to see separate lines models. Note that we are not referring to an intersection of DE genes in genotype (at constant treatment) AND treatment (constant genotype), rather genes whose treatment effect is linked to the genotype. In other words, genes for whom treatment/environment does not presen the same effect in the two genotypes.</p>
+<pre class="r"><code>dt&lt;-decideTests(glf_int, adjust.method = &quot;BH&quot;, p.value = 0.1)
+glMDPlot(glf_int  , coef=4, status=dt, #main=colnames(glf_Inland_T_vs_Inland_C)[1],
+         side.main=&quot;Geneid&quot;, counts=lcpm, groups=group, launch=TRUE)</code></pre>
+<p>Let us make a plot the data for one gene (<strong>Phvul.002G014700.v1.0</strong>) and observe the separate lines model. We will also fit an interaction model to that data set, and determine whether the interaction term is statistically significant.</p>
+<p>Let us obtain the data of interest:</p>
+<pre class="r"><code>#get index of gene of interest 
+index&lt;-as.numeric(rownames(glf_int$genes[glf_int$genes==&quot;Phvul.002G014700.v1.0&quot;, ]))
+#get the gene&#39;s expression values
+expression&lt;-lcpm[index, ]
+expression&lt;-as.data.frame(expression)
+expression$group&lt;-group
+expression$genotype&lt;-genotype
+expression</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["expression"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["group"],"name":[2],"type":["fct"],"align":["left"]},{"label":["genotype"],"name":[3],"type":["fct"],"align":["left"]}],"data":[{"1":"0.5211906","2":"C","3":"inland","_rn_":"IC3"},{"1":"0.8198373","2":"C","3":"inland","_rn_":"IC1"},{"1":"1.3528036","2":"C","3":"inland","_rn_":"IC2"},{"1":"2.4869873","2":"T","3":"inland","_rn_":"IT2"},{"1":"2.1045887","2":"T","3":"inland","_rn_":"IT1"},{"1":"1.8104183","2":"T","3":"inland","_rn_":"IT3"},{"1":"0.9741119","2":"C","3":"beach","_rn_":"BC2"},{"1":"0.8349444","2":"C","3":"beach","_rn_":"BC3"},{"1":"0.7232967","2":"C","3":"beach","_rn_":"BC1"},{"1":"7.3317451","2":"T","3":"beach","_rn_":"BT1"},{"1":"7.9554422","2":"T","3":"beach","_rn_":"BT2"},{"1":"5.9869546","2":"T","3":"beach","_rn_":"BT3"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Fit a multiple regression model with interaction term, an make a plot to illustrate the separate lines model.</p>
+<pre class="r"><code>#Fit a multiple regression model, without interaction term
+#Fun fact: RNA-Seq data analysis packages fit such models on each gene! 
+lm = lm(expression ~ group + genotype + group*genotype, data=expression)
+
+#Notice how the coefficient for the interaction term is statistically significant
+summary(lm)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = expression ~ group + genotype + group * genotype, 
+##     data = expression)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.10443 -0.17151 -0.01929  0.26852  0.86406 
+## 
+## Coefficients:
+##                      Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)           0.89794    0.33171   2.707   0.0268 *  
+## groupT                1.23605    0.46911   2.635   0.0300 *  
+## genotypebeach        -0.05383    0.46911  -0.115   0.9115    
+## groupT:genotypebeach  5.01121    0.66343   7.553 6.59e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5745 on 8 degrees of freedom
+## Multiple R-squared:  0.9676, Adjusted R-squared:  0.9555 
+## F-statistic: 79.64 on 3 and 8 DF,  p-value: 2.676e-06</code></pre>
+<pre class="r"><code>#make scatterplot
+ggplot(expression, aes(x = group, y=expression,col=genotype)) +
+    #  geom_point(alpha=0.4) + 
+    geom_point() + geom_smooth(method = &quot;lm&quot;, se = FALSE) + 
+    #scale_colour_manual(values=c(&quot;blue&quot;,&quot;red&quot;)) + 
+    labs(x = &quot;Group&quot;, y = &quot;Expression&quot;) +
+  ggtitle(&quot;expression ~ group + genotype + group*genotype&quot;) + 
+    theme(legend.position = c(0.9, 0.9), legend.title = element_blank()) +
+    theme(
+        axis.title.x = element_text(size=14),
+        axis.title.y = element_text(size=14), 
+        axis.text.x = element_text(size = 14), 
+        axis.text.y = element_text(size = 14)
+    )</code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="rna_seq_analysis_day3_files/figure-html/unnamed-chunk-29-1.png" width="672" /></p>
+<blockquote>
+<p><strong>Learning Check!</strong></p>
+<ul>
+<li>Make a scatterplot for gene expression for <strong>Phvul.005G002400.v1.0</strong>. Based on the coefficient for the interaction term, is there a statistically significant interaction between genotype and treatment observed?</li>
+</ul>
+</blockquote>
+</div>
+</div>
+<div id="conclussion" class="section level2">
+<h2><span class="header-section-number">0.7</span> Conclussion</h2>
+<p>Interaction terms are not routinely included in regression models. Inclusion is indicated in three situations:</p>
+<ol style="list-style-type: decimal">
+<li>when a question of interest pertains to interaction</li>
+<li>when good reason exist to suspect interaction</li>
+<li>when interactions are proposed as a more general model for the purpose of examining the goodness of fit of a model without interaction.</li>
+</ol>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
