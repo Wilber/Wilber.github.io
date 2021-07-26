@@ -506,7 +506,7 @@ rownames(mod) &lt;- colnames(dge)</code></pre>
 <pre class="r"><code>dge2 &lt;- estimateDisp(dge, design = mod)</code></pre>
 <p>We then plot the biological coefficient of variation (BCV). BCV is the coefficient of variation (CV) with which the (unknown) true abundance of the gene varies between replicate RNA samples. It represents the CV that would remain between biological replicates if sequencing depth could be increased indefinitely. The BCV is the square root of the negative binomial dispersion.</p>
 <pre class="r"><code>plotBCV(dge2)</code></pre>
-<p><img src="rna_seq_analysis_day2_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 </div>
 <div id="model-fitting-hypothesis-testing" class="section level2">
 <h2><span class="header-section-number">0.5</span> Model fitting &amp; Hypothesis testing</h2>
@@ -657,7 +657,7 @@ head(sign.dat)</code></pre>
     axis.text.x = element_text(size = 14), 
     axis.text.y = element_text(size = 14)
   )</code></pre>
-<p><img src="rna_seq_analysis_day2_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
 <p>We can create an interactive MD plot using the <code>glmMDplot</code> function from <code>Glimma</code> package:</p>
 <pre class="r"><code>glMDPlot(glf_T_vs_C  , coef=3, status=dt, #main=colnames(glf_Inland_T_vs_Inland_C)[1],
          side.main=&quot;Geneid&quot;, counts=lcpm, groups=group, launch=TRUE)</code></pre>
@@ -670,7 +670,7 @@ mycol &lt;- colorpanel(1000,&quot;blue&quot;,&quot;white&quot;,&quot;red&quot;)
 heatmap.2(lcpm[i,], scale=&quot;row&quot;,
           labRow=dge$genes$Geneid[i], labCol=rownames(dge$samples),
           col=mycol, trace=&quot;none&quot;, density.info=&quot;none&quot;, dendrogram=&quot;column&quot;)</code></pre>
-<p><img src="rna_seq_analysis_day2_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+<p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
 <p>As expected, we observe two main clusters, wherein samples are group based on on treatment and control. Additionally, all biological replicates are clustered together.</p>
 </div>
 <div id="conclussion" class="section level2">
