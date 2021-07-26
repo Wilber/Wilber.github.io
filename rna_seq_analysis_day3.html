@@ -828,7 +828,7 @@ summary(lm)</code></pre>
         axis.text.y = element_text(size = 14)
     )</code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="rna_seq_analysis_day3_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+<p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
 </div>
 <div id="a-parallel-lines-model" class="section level3">
 <h3><span class="header-section-number">0.6.2</span> A parallel lines model</h3>
@@ -868,7 +868,7 @@ summary(lm)</code></pre>
         axis.text.y = element_text(size = 14)
     )</code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="rna_seq_analysis_day3_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
+<p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
 <p>Note that both light intensity and time have a significant effect on the number of flowers. Additionally, it’s important to note that the two lines in the figure above <strong>do not</strong> represent regression model. A regression model for two variables would be a plane (a 2-d model).</p>
 </div>
 <div id="a-separate-lines-model" class="section level3">
@@ -910,7 +910,7 @@ summary(lm)</code></pre>
         axis.text.y = element_text(size = 14)
     )</code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="rna_seq_analysis_day3_files/figure-html/unnamed-chunk-24-1.png" width="672" /></p>
+<p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-24-1.png" width="672" /></p>
 <p>The coefficient for interaction term is almost Zero! Probably no need to include interaction term in the model.</p>
 <p>Let us consider a data set that has a significant interaction term: a data set called, Melanoma, which is found in the package, MASS. This is a data set of 205 patients in Denmark with malignant melanoma.</p>
 <pre class="r"><code># Load package MASS
@@ -970,7 +970,7 @@ summary(lm)</code></pre>
         axis.text.y = element_text(size = 14)
     )</code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="rna_seq_analysis_day3_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
+<p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
 <p>Notice how the interaction term is marginally significant.</p>
 <p>Going back to our RNA-Seq data set, each of the DE genes identified in the interaction model (genes responding due to a genotype AND environment interaction), we expect to see separate lines models. Note that we are not referring to an intersection of DE genes in genotype (at constant treatment) AND treatment (constant genotype), rather genes whose treatment effect is linked to the genotype. In other words, genes for whom treatment/environment does not presen the same effect in the two genotypes.</p>
 <pre class="r"><code>dt&lt;-decideTests(glf_int, adjust.method = &quot;BH&quot;, p.value = 0.1)
@@ -1034,7 +1034,7 @@ ggplot(expression, aes(x = group, y=expression,col=genotype)) +
         axis.text.y = element_text(size = 14)
     )</code></pre>
 <pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
-<p><img src="rna_seq_analysis_day3_files/figure-html/unnamed-chunk-29-1.png" width="672" /></p>
+<p><img src="rna_seq_analysis_files/figure-html/unnamed-chunk-29-1.png" width="672" /></p>
 <blockquote>
 <p><strong>Learning Check!</strong></p>
 <ul>
